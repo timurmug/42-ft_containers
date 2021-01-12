@@ -1,0 +1,6 @@
+ft_containers
+.DS_Store
+*.o
+a.out
+ft_containers.dSYM
+.idea/
