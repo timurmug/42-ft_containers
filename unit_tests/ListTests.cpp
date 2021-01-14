@@ -563,3 +563,61 @@ TEST(List_Modifiers, clear) {
     ft_list.push_back (2202);
     checkTwoLists(std_list, ft_list);
 }
+
+
+/* Operations */
+TEST(List_Operations, splice) {
+    std::list<int> std_list, std_list2;
+    ft::list<int> ft_list, ft_list2;
+
+    // set some initial values:
+    for (int i=1; i<=4; ++i) {
+        std_list.push_back(i);      // mylist1: 1 2 3 4
+        ft_list.push_back(i);
+    }
+
+    for (int i=1; i<=3; ++i) {
+        std_list2.push_back(i * 10);   // std_list2: 10 20 30
+        ft_list2.push_back(i * 10);
+    }
+
+    std::list<int>::iterator std_it = std_list.begin();
+    ft::list<int>::iterator ft_it = ft_list.begin();
+    ++std_it;                         // points to 2
+    ++ft_it;
+
+    std_list.splice (std_it, std_list2);    // mylist1: 1 10 20 30 2 3 4
+    ft_list.splice (ft_it, ft_list2);       // mylist1: 1 10 20 30 2 3 4
+                                            // std_list2 (empty)
+                                            // "it" still points to 2 (the 5th element)
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+
+    std_list2.splice(std_list2.begin(), std_list, std_it);
+    ft_list2.splice(ft_list2.begin(), ft_list, ft_it);
+    // mylist1: 1 10 20 30 3 4
+    // mylist2: 2
+    // "it" is now invalid.
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+
+    std_it = std_list.begin();
+    ft_it = ft_list.begin();
+    int n = 3;
+    while (n--) {
+        std_it++;
+        ft_it++;
+    }
+
+    std_list.splice( std_list.begin(), std_list, std_it, std_list.end());
+    ft_list.splice( ft_list.begin(), ft_list, ft_it, ft_list.end());
+    // mylist1: 30 3 4 1 10 20
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+
+    printTwoLists(std_list, ft_list);
+    printTwoLists(std_list2, ft_list2);
+}

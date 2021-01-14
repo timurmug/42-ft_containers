@@ -291,6 +291,11 @@ list& operator=(const list& x) {
         prevNode->next = newNode;
         nextNode->prev = newNode;
         _size++;
+        if (_size == 1) {
+            _beginNode = newNode;
+            _endNode->next = newNode;
+            _endNode->prev = newNode;
+        }
         return iterator(newNode);
     }
 //  fill (2)
@@ -325,8 +330,7 @@ list& operator=(const list& x) {
     }
 
     void swap (list& x) {
-        t_node *temp_node;
-        temp_node = this->_beginNode;
+        t_node *temp_node = this->_beginNode;
         this->_beginNode = x._beginNode;
         x._beginNode = temp_node;
         temp_node = this->_endNode;
@@ -354,7 +358,32 @@ list& operator=(const list& x) {
         _size = 0;
     }
 
-/* Operators */
+/* Operations */
+//    entire list (1)
+    void splice (iterator position, list& x) {
+        insert(position, x.begin(), x.end());
+        x.clear();
+    }
+//    single element (2)
+    void splice (iterator position, list& x, iterator i) {
+        if (i == x.begin()) {
+            x._beginNode = i.getNodePtr()->next;
+            x._endNode->next = x._beginNode;
+            if (x._size == 1)
+                x._endNode->prev = x._endNode;
+        }
+        t_node *nodeToSplice = i.getNodePtr();
+        nodeToSplice->prev->next = nodeToSplice->next;
+        nodeToSplice->next->prev = nodeToSplice->prev;
+        x._size--;
+        insert(position, *i);
+    }
+////    element range (3)
+    void splice (iterator position, list& x, iterator first, iterator last) {
+        for (; first != last; first++)
+            splice(position, x, first);
+    }
+
     void remove (const value_type& val) {
         (void)val;
     }
