@@ -69,7 +69,7 @@ public:
 
 list& operator=(const list& x) {
 	if (this != &x) {
-	    _clear();
+        clear();
 	    _alloc = x._alloc;
 	    const_iterator first = x.begin();
 	    const_iterator last = x.end();
@@ -235,7 +235,7 @@ list& operator=(const list& x) {
 //  range (1)
     template <class InputIterator>
     void assign (InputIterator first, InputIterator last) {
-        _clear();
+        clear();
         while (first != last){
             this->push_back(*first);
             first++;
@@ -244,7 +244,7 @@ list& operator=(const list& x) {
     }
 //  fill (2)
     void assign (size_type n, const value_type& val) {
-        _clear();
+        clear();
         while (n--)
             this->push_back(val);
     }
@@ -325,7 +325,33 @@ list& operator=(const list& x) {
     }
 
     void swap (list& x) {
+        t_node *temp_node;
+        temp_node = this->_beginNode;
+        this->_beginNode = x._beginNode;
+        x._beginNode = temp_node;
+        temp_node = this->_endNode;
+        this->_endNode = x._endNode;
+        x._endNode = temp_node;
 
+        size_type temp_size = this->_size;
+        this->_size = x._size;
+        x._size = temp_size;
+    }
+
+    void resize (size_type n, value_type val = value_type()) {
+        while (n < _size)
+            pop_back();
+        while (n > _size)
+            push_back(val);
+    }
+
+    void clear() {
+        while (_beginNode != _endNode)
+            _remove_beginNode();
+        _beginNode = _endNode;
+        _endNode->next = _endNode;
+        _endNode->prev = _endNode;
+        _size = 0;
     }
 
 /* Operators */
@@ -362,16 +388,8 @@ private:
         return newNode;
 	}
 
-	void _clear() {
-		while (_beginNode != _endNode)
-            _remove_beginNode();
-		_beginNode = _endNode;
-		_endNode->next = _endNode;
-		_endNode->prev = _endNode;
-		_size = 0;
-	}
 	void _deleteAllNotes() {
-		_clear();
+        clear();
 		// while (_beginNode != _endNode) {
 		// 	t_node	*begin = _beginNode;
 		// 	_beginNode = _beginNode->next;
@@ -386,7 +404,6 @@ private:
 		_alloc_rebind.deallocate(_endNode, 1);
 		// _endNode = nullptr;
 	}
-
 
 };
 

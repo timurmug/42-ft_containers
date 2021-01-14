@@ -36,11 +36,11 @@ void printTwoLists(T & std_list, S & ft_list)  {
     typename T::iterator std_ite = std_list.end();
     typename S::iterator ft_it = ft_list.begin();
     typename S::iterator ft_ite = ft_list.end();
-    std::cout << "std_list: ";
+    std::cout << "std_list:\t";
     while (std_it != std_ite)
         std::cout << ' ' << *std_it++;
     std::cout << std::endl;
-    std::cout << "ft_list: ";
+    std::cout << "ft_list:\t";
     while (ft_it != ft_ite)
         std::cout << ' ' << *ft_it++;
     std::cout << std::endl;
@@ -512,6 +512,54 @@ TEST(List_Modifiers, erase) {
 }
 
 TEST(List_Modifiers, swap) {
+    std::list<char> std_first (3,'a');
+    ft::list<char> ft_first (3,'a');
+    std::list<char> std_second (5,'b');
+    ft::list<char> ft_second (5,'b');
 
+    std_first.swap(std_second);
+    ft_first.swap(ft_second);
+    checkTwoLists(std_first, ft_first);
+    checkTwoLists(std_second, ft_second);
 }
 
+TEST(List_Modifiers, resize) {
+    std::list<int>  std_list;
+    ft::list<int>   ft_list;
+
+    for (int i = 1; i < 10; ++i) {
+        std_list.push_back(i);
+        ft_list.push_back(i);
+    }
+
+    std_list.resize(5);
+    ft_list.resize(5);
+    std_list.resize(8, 100);
+    ft_list.resize(8, 100);
+    std_list.resize(12);
+    ft_list.resize(12);
+
+    checkTwoLists(std_list, ft_list);
+}
+
+TEST(List_Modifiers, clear) {
+    std::list<int> std_list;
+    ft::list<int> ft_list;
+
+    std_list.push_back (100);
+    std_list.push_back (200);
+    std_list.push_back (300);
+    ft_list.push_back (100);
+    ft_list.push_back (200);
+    ft_list.push_back (300);
+
+    std_list.clear();
+    ft_list.clear();
+    checkTwoLists(std_list, ft_list);
+
+    std_list.push_back (1101);
+    std_list.push_back (2202);
+    ft_list.push_back (1101);
+    ft_list.push_back (2202);
+    checkTwoLists(std_list, ft_list);
+}
