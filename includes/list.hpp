@@ -223,7 +223,7 @@ list& operator=(const list& x) {
 /* Capacity */
     bool        empty()     const { return (this->_size == 0); }
 	size_type   size()      const { return this->_size; }
-    size_type   max_size()  const { return 0; }
+    size_type   max_size()  const { return std::numeric_limits<std::size_t>::max() / sizeof(t_node); }
 
 /* Element access */
     reference       front()         { return *_beginNode->data; }
@@ -232,7 +232,7 @@ list& operator=(const list& x) {
     const_reference back()  const   { return *_endNode->prev->data; }
 
 /* Modifiers */
-//    range (1)
+//  range (1)
     template <class InputIterator>
     void assign (InputIterator first, InputIterator last) {
         _clear();
@@ -242,7 +242,7 @@ list& operator=(const list& x) {
         }
 
     }
-//    fill (2)
+//  fill (2)
     void assign (size_type n, const value_type& val) {
         _clear();
         while (n--)
@@ -305,12 +305,28 @@ list& operator=(const list& x) {
             insert(position, *first);
     }
 
-//    iterator erase (iterator position) {
-//
-//    }
-//    iterator erase (iterator first, iterator last){
-//
-//    }
+    iterator erase (iterator position) {
+        t_node	*nodeToDelete = position.getNodePtr();
+        nodeToDelete->prev->next = nodeToDelete->next;
+        nodeToDelete->next->prev = nodeToDelete->prev;
+        iterator it(nodeToDelete->next);
+        _alloc.destroy(nodeToDelete->data);
+        _alloc.deallocate(nodeToDelete->data, 1);
+        _alloc_rebind.destroy(nodeToDelete);
+        _alloc_rebind.deallocate(nodeToDelete, 1);
+        _size--;
+        return it;
+    }
+    iterator erase (iterator first, iterator last){
+        iterator it;
+        while (first != last)
+            it = erase(first++);
+        return it;
+    }
+
+    void swap (list& x) {
+
+    }
 
 /* Operators */
     void remove (const value_type& val) {

@@ -30,6 +30,21 @@ void checkTwoLists(T & std_list, S & ft_list) {
     ASSERT_EQ((std_it == std_ite), (ft_it == ft_ite));
 }
 
+template <typename T, typename S>
+void printTwoLists(T & std_list, S & ft_list)  {
+    typename T::iterator std_it = std_list.begin();
+    typename T::iterator std_ite = std_list.end();
+    typename S::iterator ft_it = ft_list.begin();
+    typename S::iterator ft_ite = ft_list.end();
+    std::cout << "std_list: ";
+    while (std_it != std_ite)
+        std::cout << ' ' << *std_it++;
+    std::cout << std::endl;
+    std::cout << "ft_list: ";
+    while (ft_it != ft_ite)
+        std::cout << ' ' << *ft_it++;
+    std::cout << std::endl;
+}
 
 /* Constructor, destructor, operator= */
 TEST(List_Base, empty_constructor) {
@@ -438,8 +453,7 @@ TEST(List_Modifiers, insert) {
     ft_it = ft_list.begin();
     ++std_it;
     ++ft_it;
-    std_list.insert (std_it, 'w');
-    ft_list.insert (ft_it, 'w');
+    ASSERT_EQ(*std_list.insert (std_it, 'w'), *ft_list.insert (ft_it, 'w'));
 
     std_list.insert (std_it, 2, 'r');
     ft_list.insert(ft_it, 2, 'r');
@@ -458,6 +472,46 @@ TEST(List_Modifiers, insert) {
     checkTwoLists(std_list, ft_list);
 }
 
-//TEST(List_Modifiers, erase) {
-//
-//}
+TEST(List_Modifiers, erase) {
+    std::list<int> std_list;
+    ft::list<int> ft_list;
+
+    for (int i = 1; i < 10; ++i) {
+        std_list.push_back(i * 10);
+        ft_list.push_back(i * 10);
+    }
+    // 10 20 30 40 50 60 70 80 90
+
+    std::list<int>::iterator std_it = std_list.begin();
+    std::list<int>::iterator std_ite = std_list.end();
+    ft::list<int>::iterator ft_it = ft_list.begin();
+    ft::list<int>::iterator ft_ite = ft_list.end();
+    std_it++;
+    ft_it++;
+    int n = 3;
+    while (n--) {
+        std_ite--;
+        ft_ite--;
+    }
+    std::list<int>::iterator std_it2 = std_list.erase(std_it);
+    ft::list<int>::iterator ft_it2 = ft_list.erase(ft_it);
+    std::list<int>::iterator std_ite2 = std_list.erase(std_ite);
+    ft::list<int>::iterator ft_ite2 = ft_list.erase(ft_ite);
+    EXPECT_EQ(*std_it2, *ft_it2);
+    EXPECT_EQ(*std_ite2, *ft_ite2);
+    checkTwoLists(std_list, ft_list);
+    // 10 30 40 50 60 80 90
+
+    ++std_it2;
+    ft_it2++;
+    --std_ite2;
+    --ft_ite2;
+    EXPECT_EQ(*std_list.erase(std_it2, std_ite2), *ft_list.erase(ft_it2, ft_ite2));
+    checkTwoLists(std_list, ft_list);
+    // 10 30 60 80 90
+}
+
+TEST(List_Modifiers, swap) {
+
+}
+
