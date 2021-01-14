@@ -211,35 +211,111 @@ list& operator=(const list& x) {
     };
 
 /* Iterators */
-    iterator 				begin()         { return iterator(_beginNode); }
-    const_iterator 		    begin() const   { return const_iterator(_beginNode); }
-    iterator				end()           { return iterator(_endNode);	}
-    const_iterator			end() const     { return const_iterator(_endNode); }
-    reverse_iterator 		rbegin()        { return reverse_iterator(_endNode->prev); }
-    reverse_iterator		rend()          { return reverse_iterator(_beginNode->prev);	}
-    const_reverse_iterator 	rbegin() const  { return const_reverse_iterator(_endNode->prev); }
-    const_reverse_iterator	rend() const    { return const_reverse_iterator(_beginNode->prev); }
+    iterator 				begin()             { return iterator(_beginNode); }
+    const_iterator 		    begin()     const   { return const_iterator(_beginNode); }
+    iterator				end()               { return iterator(_endNode);	}
+    const_iterator			end()       const   { return const_iterator(_endNode); }
+    reverse_iterator 		rbegin()            { return reverse_iterator(_endNode->prev); }
+    reverse_iterator		rend()              { return reverse_iterator(_beginNode->prev);	}
+    const_reverse_iterator 	rbegin()    const   { return const_reverse_iterator(_endNode->prev); }
+    const_reverse_iterator	rend()      const   { return const_reverse_iterator(_beginNode->prev); }
 
 /* Capacity */
-	size_type size() const { return this->size_type; }
+    bool        empty()     const { return (this->_size == 0); }
+	size_type   size()      const { return this->_size; }
+    size_type   max_size()  const { return 0; }
+
+/* Element access */
+    reference       front()         { return *_beginNode->data; }
+    const_reference front() const   { return *_beginNode->data; }
+    reference       back()          { return *_endNode->prev->data; }
+    const_reference back()  const   { return *_endNode->prev->data; }
 
 /* Modifiers */
-	void push_back (const value_type& val) {
-//	    t_node *newNode = _createNode(val, _endNode, _endNode->prev);
-		t_node *newNode = _alloc_rebind.allocate(1);
+//    range (1)
+    template <class InputIterator>
+    void assign (InputIterator first, InputIterator last) {
+        _clear();
+        while (first != last){
+            this->push_back(*first);
+            first++;
+        }
+
+    }
+//    fill (2)
+    void assign (size_type n, const value_type& val) {
+        _clear();
+        while (n--)
+            this->push_back(val);
+    }
+
+    void push_front(const value_type& val) {
+        t_node *newNode = _newNode(val, _endNode, _beginNode);
+        _beginNode->prev = newNode;
+        _beginNode = newNode;
+        _size++;
+    }
+
+    void pop_front() {
+        _remove_beginNode();
+        _size--;
+    }
+
+    void push_back (const value_type& val) {
+        t_node *newNode = _newNode(val, _endNode->prev, _endNode);
 		_endNode->prev->next = newNode;
-		newNode->prev = _endNode->prev;
-		newNode->next = _endNode;
-		newNode->data = _alloc.allocate(1);
         _endNode->prev = newNode;
-		_alloc.construct(newNode->data, val);
-		this->_size++;
+        _size++;
 		if (_size == 1) {
 			_beginNode = newNode;
 			_endNode->next = newNode;
 			_endNode->prev = newNode;
 		}
 	}
+
+    void pop_back() {
+        t_node	*end = _endNode;
+        _endNode = _endNode->prev;
+        _alloc.destroy(end->data);
+        _alloc.deallocate(end->data, 1);
+        _alloc_rebind.destroy(end);
+        _alloc_rebind.deallocate(end, 1);
+        _size--;
+    }
+
+//  single element (1)
+    iterator insert (iterator position, const value_type& val) {
+        t_node *prevNode = position.getNodePtr()->prev;
+        t_node *nextNode = position.getNodePtr();
+        t_node *newNode = _newNode(val, prevNode, nextNode);
+        prevNode->next = newNode;
+        nextNode->prev = newNode;
+        _size++;
+        return iterator(newNode);
+    }
+//  fill (2)
+    void insert (iterator position, size_type n, const value_type& val) {
+        while (n--)
+            insert(position, val);
+    }
+//  range (3)
+    template <class InputIterator>
+    void insert (iterator position, InputIterator first, InputIterator last) {
+        for (; first != last; first++)
+            insert(position, *first);
+    }
+
+//    iterator erase (iterator position) {
+//
+//    }
+//    iterator erase (iterator first, iterator last){
+//
+//    }
+
+/* Operators */
+    void remove (const value_type& val) {
+        (void)val;
+    }
 
 private:
 
@@ -252,18 +328,31 @@ private:
 		_endNode = _beginNode;
 	}
 
+	void _remove_beginNode() {
+        t_node	*begin = _beginNode;
+        _beginNode = _beginNode->next;
+        _alloc.destroy(begin->data);
+        _alloc.deallocate(begin->data, 1);
+        _alloc_rebind.destroy(begin);
+        _alloc_rebind.deallocate(begin, 1);
+	}
+
+    t_node * _newNode(const value_type& val, t_node *prevNode, t_node *nextNode) {
+        t_node *newNode = _alloc_rebind.allocate(1);
+        newNode->prev = prevNode;
+        newNode->next = nextNode;
+        newNode->data = _alloc.allocate(1);
+        _alloc.construct(newNode->data, val);
+        return newNode;
+	}
+
 	void _clear() {
-		while (_beginNode != _endNode) {
-			t_node	*begin = _beginNode;
-			_beginNode = _beginNode->next;
-			_alloc.destroy(begin->data);
-			_alloc.deallocate(begin->data, 1);
-			_alloc_rebind.destroy(begin);
-			_alloc_rebind.deallocate(begin, 1);
-		}
+		while (_beginNode != _endNode)
+            _remove_beginNode();
 		_beginNode = _endNode;
 		_endNode->next = _endNode;
 		_endNode->prev = _endNode;
+		_size = 0;
 	}
 	void _deleteAllNotes() {
 		_clear();

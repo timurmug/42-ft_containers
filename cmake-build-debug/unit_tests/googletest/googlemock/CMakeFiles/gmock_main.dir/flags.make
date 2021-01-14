@@ -6,5 +6,5 @@ CXX_FLAGS = -Wall -Wextra -Werror -g -isysroot /Applications/Xcode.app/Contents/
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /Users/qtamaril/Desktop/ft_containers/unit_tests/googletest/googlemock/include -isystem /Users/qtamaril/Desktop/ft_containers/unit_tests/googletest/googlemock -isystem /Users/qtamaril/Desktop/ft_containers/unit_tests/googletest/googletest/include -isystem /Users/qtamaril/Desktop/ft_containers/unit_tests/googletest/googletest 
+CXX_INCLUDES = -isystem /Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/googletest/googlemock/include -isystem /Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/googletest/googlemock -isystem /Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/googletest/googletest/include -isystem /Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/googletest/googletest 
 
