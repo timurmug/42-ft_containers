@@ -446,6 +446,28 @@ list& operator=(const list& x) {
         }
     }
 
+    void unique() {
+        iterator it = begin();
+        iterator ite = end();
+        while (it != ite) {
+            t_node *currNode = it.getNodePtr();
+            if (it != begin() && *currNode->data == *currNode->prev->data)
+                erase(it);
+            it++;
+        }
+    }
+    template <class BinaryPredicate>
+    void unique (BinaryPredicate binary_pred) {
+        iterator it = begin();
+        iterator ite = end();
+        while (it != ite) {
+            t_node *currNode = it.getNodePtr();
+            if (it != begin() && binary_pred(*currNode->data, *currNode->prev->data))
+                erase(it);
+            it++;
+        }
+    }
+
 private:
 
 /* Additional functions */

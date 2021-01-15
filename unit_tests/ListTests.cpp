@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <list>
 #include "list.hpp"
+#include <cmath>
 
 template <typename T, typename S>
 void checkTwoListsAndDelete(T *std_list, S *ft_list) {
@@ -750,7 +751,31 @@ TEST(List_Operations, remove_if) {
     std_list.remove_if (is_odd());               // 36 20
     ft_list.remove_if (is_odd());               // 36 20
     checkTwoLists(std_list, ft_list);
+}
 
+// a binary predicate implemented as a function:
+bool same_integral_part (double first, double second)
+{ return ( int(first)==int(second) ); }
+
+// a binary predicate implemented as a class:
+struct is_near {
+    bool operator() (double first, double second)
+    { return (fabs(first-second)<5.0); }
+};
+TEST(List_Operations, unique) {
+    double mydoubles[] = { 2.72,  3.14, 12.15, 12.77, 12.77, 15.3,  72.25, 72.25, 73.0,  73.35 };
+    std::list<double> std_list (mydoubles,mydoubles + 10);
+    ft::list<double> ft_list (mydoubles, mydoubles + 10);
+
+    std_list.unique();
+    ft_list.unique();
+
+    std_list.unique (same_integral_part);
+    ft_list.unique (same_integral_part);
+
+    std_list.unique (is_near());
+    ft_list.unique (is_near());
+    checkTwoLists(std_list, ft_list);
 }
 
 
