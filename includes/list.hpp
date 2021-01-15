@@ -281,6 +281,11 @@ list& operator=(const list& x) {
         _alloc_rebind.destroy(end);
         _alloc_rebind.deallocate(end, 1);
         _size--;
+        if (_size == 0) {
+            _beginNode = _endNode;
+            _endNode->next = _endNode;
+            _endNode->prev = _endNode;
+        }
     }
 
 //  single element (1)
@@ -314,13 +319,21 @@ list& operator=(const list& x) {
         t_node	*nodeToDelete = position.getNodePtr();
         nodeToDelete->prev->next = nodeToDelete->next;
         nodeToDelete->next->prev = nodeToDelete->prev;
-        iterator it(nodeToDelete->next);
+        if (position == begin()) {
+            _beginNode = nodeToDelete->next;
+            _endNode->next = nodeToDelete->next;
+        }
         _alloc.destroy(nodeToDelete->data);
         _alloc.deallocate(nodeToDelete->data, 1);
         _alloc_rebind.destroy(nodeToDelete);
         _alloc_rebind.deallocate(nodeToDelete, 1);
         _size--;
-        return it;
+        if (_size == 0) {
+            _beginNode = _endNode;
+            _endNode->next = _endNode;
+            _endNode->prev = _endNode;
+        }
+        return ++position;
     }
     iterator erase (iterator first, iterator last){
         iterator it;
@@ -404,14 +417,33 @@ list& operator=(const list& x) {
         _size++;
         x._size--;
     }
-////    element range (3)
+//    element range (3)
     void splice (iterator position, list& x, iterator first, iterator last) {
         while (first != last)
             splice(position, x, first++);
     }
 
     void remove (const value_type& val) {
-        (void)val;
+        iterator it = begin();
+        iterator ite = end();
+        while (it != ite) {
+            if (*it == val)
+                erase(it);
+            else
+                it++;
+        }
+    }
+
+    template <class Predicate>
+    void remove_if (Predicate pred) {
+        iterator it = begin();
+        iterator ite = end();
+        while (it != ite) {
+            if (pred(*it)) {
+                erase(it);
+            }
+            it++;
+        }
     }
 
 private:
@@ -432,6 +464,11 @@ private:
         _alloc.deallocate(begin->data, 1);
         _alloc_rebind.destroy(begin);
         _alloc_rebind.deallocate(begin, 1);
+        if (_size == 1) {
+            _beginNode = _endNode;
+            _endNode->next = _endNode;
+            _endNode->prev = _endNode;
+        }
 	}
 
     t_node * _newNode(const value_type& val, t_node *prevNode, t_node *nextNode) {

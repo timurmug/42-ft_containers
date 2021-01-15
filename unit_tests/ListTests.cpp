@@ -254,10 +254,8 @@ TEST(List_Capacity_And_Element_Access, empty) {
     int n = 5;
     std::list<char> std_list3(n, 'a');
     ft::list<char> ft_list3(n, 'a');
-    while (n--) {
-        std_list3.remove('a');
-        ft_list3.remove('a');
-    }
+    std_list3.remove('a');
+    ft_list3.remove('a');
     EXPECT_EQ(std_list3.empty(), ft_list3.empty());
 
     std::list<int> std_list4;
@@ -720,3 +718,39 @@ TEST(List_Operations, splice3) {
     EXPECT_EQ(*std2_it, *ft2_it);
     EXPECT_EQ(*std2_ite, *ft2_ite);
 }
+
+TEST(List_Operations, remove) {
+    int myints[] = {17, 13,89,7,14, 13, 13};
+    std::list<int> std_list (myints,myints + 4);
+    ft::list<int> ft_list (myints,myints + 4);
+
+    std_list.remove(89);
+    ft_list.remove(89);
+    std_list.remove(15);
+    ft_list.remove(15);
+    std_list.remove(89);
+    ft_list.remove(89);
+    checkTwoLists(std_list, ft_list);
+}
+
+// a predicate implemented as a function:
+bool single_digit (const int& value) { return (value < 10); }
+// a predicate implemented as a class:
+struct is_odd {
+    bool operator() (const int& value) { return (value % 2) == 1; }
+};
+TEST(List_Operations, remove_if) {
+    int myints[] = {15,36,7,17,20,39,4,1};
+    std::list<int> std_list (myints, myints + 8);   // 15 36 7 17 20 39 4 1
+    ft::list<int> ft_list (myints, myints + 8);   // 15 36 7 17 20 39 4 1
+
+    std_list.remove_if(single_digit);           // 15 36 17 20 39
+    ft_list.remove_if(single_digit);           // 15 36 17 20 39
+
+    std_list.remove_if (is_odd());               // 36 20
+    ft_list.remove_if (is_odd());               // 36 20
+    checkTwoLists(std_list, ft_list);
+
+}
+
+
