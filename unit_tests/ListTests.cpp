@@ -566,58 +566,157 @@ TEST(List_Modifiers, clear) {
 
 
 /* Operations */
-TEST(List_Operations, splice) {
-    std::list<int> std_list, std_list2;
-    ft::list<int> ft_list, ft_list2;
-
-    // set some initial values:
-    for (int i=1; i<=4; ++i) {
-        std_list.push_back(i);      // mylist1: 1 2 3 4
-        ft_list.push_back(i);
-    }
-
-    for (int i=1; i<=3; ++i) {
-        std_list2.push_back(i * 10);   // std_list2: 10 20 30
-        ft_list2.push_back(i * 10);
-    }
+TEST(List_Operations, splice1) {
+    std::list<int> std_list;
+    std::list<int> std_list2;
+    ft::list<int> ft_list;
+    ft::list<int> ft_list2;
 
     std::list<int>::iterator std_it = std_list.begin();
     ft::list<int>::iterator ft_it = ft_list.begin();
-    ++std_it;                         // points to 2
-    ++ft_it;
-
-    std_list.splice (std_it, std_list2);    // mylist1: 1 10 20 30 2 3 4
-    ft_list.splice (ft_it, ft_list2);       // mylist1: 1 10 20 30 2 3 4
-                                            // std_list2 (empty)
-                                            // "it" still points to 2 (the 5th element)
+    std_list.splice (std_it, std_list);
+    ft_list.splice (ft_it, ft_list);
     checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
     EXPECT_EQ(*std_it, *ft_it);
 
-    std_list2.splice(std_list2.begin(), std_list, std_it);
-    ft_list2.splice(ft_list2.begin(), ft_list, ft_it);
-    // mylist1: 1 10 20 30 3 4
-    // mylist2: 2
-    // "it" is now invalid.
+    for (int i=1; i<=3; ++i) {
+        std_list2.push_back(i * 10);
+        ft_list2.push_back(i * 10);
+    }
+    std_list.splice (std_it, std_list2);
+    ft_list.splice (ft_it, ft_list2);
     checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
-    EXPECT_EQ(*std_it, *ft_it);
 
     std_it = std_list.begin();
     ft_it = ft_list.begin();
-    int n = 3;
-    while (n--) {
-        std_it++;
-        ft_it++;
-    }
-
-    std_list.splice( std_list.begin(), std_list, std_it, std_list.end());
-    ft_list.splice( ft_list.begin(), ft_list, ft_it, ft_list.end());
-    // mylist1: 30 3 4 1 10 20
+    std_it++;
+    ft_it++;
+    std_list.splice (std_it, std_list2);
+    ft_list.splice (ft_it, ft_list2);
     checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
     EXPECT_EQ(*std_it, *ft_it);
 
-    printTwoLists(std_list, ft_list);
-    printTwoLists(std_list2, ft_list2);
+    for (int i=1; i<=3; ++i) {
+        std_list2.push_back(i * 10);
+        ft_list2.push_back(i * 10);
+    }
+    std_list.splice (std_list.begin(), std_list2);
+    ft_list.splice (ft_list.begin(), ft_list2);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+
+    for (int i=1; i<=3; ++i) {
+        std_list2.push_back(i * 10);
+        ft_list2.push_back(i * 10);
+    }
+    std_list.splice (std_list.end(), std_list2);
+    ft_list.splice (ft_list.end(), ft_list2);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+}
+TEST(List_Operations, splice2) {
+    std::list<int> std_list;
+    std::list<int> std_list2;
+    ft::list<int> ft_list;
+    ft::list<int> ft_list2;
+
+    std::list<int>::iterator std_it = std_list.begin();
+    ft::list<int>::iterator ft_it = ft_list.begin();
+    std_list.splice (std_it, std_list, std_it);
+    ft_list.splice (ft_it, ft_list, ft_it);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std_it, *ft_it);
+
+    for (int i=1; i<=5; ++i) {
+        std_list2.push_back(i * 10);
+        ft_list2.push_back(i * 10);
+    }
+    std::list<int>::iterator std2_ite = std_list2.end();
+    ft::list<int>::iterator ft2_ite = ft_list2.end();
+    int n = 3;
+    while (n--) {
+        std2_ite--;
+        ft2_ite--;
+    }
+    std_list.splice (std_it, std_list2, std2_ite);
+    ft_list.splice (ft_it, ft_list2, ft2_ite);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std2_ite, *ft2_ite);
+
+    std_it = std_list.begin();
+    ft_it = ft_list.begin();
+    std_it++;
+    ft_it++;
+    std_list.splice (std_it, std_list2, std_list2.begin());
+    ft_list.splice (ft_it, ft_list2, ft_list2.begin());
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+
+    for (int i=1; i<=3; ++i) {
+        std_list2.push_back(i * 10);
+        ft_list2.push_back(i * 10);
+    }
+    std2_ite = std_list2.end();
+    ft2_ite = ft_list2.end();
+    n = 2;
+    while (n--) {
+        std2_ite--;
+        ft2_ite--;
+    }
+    std_list.splice (std_list.begin(), std_list2, std2_ite);
+    ft_list.splice (ft_list.begin(), ft_list2, ft2_ite);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std2_ite, *ft2_ite);
+}
+TEST(List_Operations, splice3) {
+    std::list<int> std_list;
+    std::list<int> std_list2;
+    ft::list<int> ft_list;
+    ft::list<int> ft_list2;
+
+    std_list.splice (std_list.begin(), std_list, std_list.begin(), std_list.end());
+    ft_list.splice (ft_list.begin(), ft_list, ft_list.begin(), ft_list.end());
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+
+    std_list.splice (std_list.begin(), std_list2, std_list2.begin(), std_list2.end());
+    ft_list.splice (ft_list.begin(), ft_list2, ft_list2.begin(), ft_list2.end());
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+
+    for (int i = 0; i < 5; i++) {
+        std_list2.push_back(i);
+        ft_list2.push_back(i);
+    }
+    std_list.splice (std_list.begin(), std_list2, std_list2.begin(), std_list2.end());
+    ft_list.splice (ft_list.begin(), ft_list2, ft_list2.begin(), ft_list2.end());
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+
+    for (int i = 0; i < 5; i++) {
+        std_list2.push_back(i);
+        ft_list2.push_back(i);
+    }
+    std::list<int>::iterator std2_it = std_list2.begin();
+    std2_it++;
+    ft::list<int>::iterator ft2_it = ft_list2.begin();
+    ft2_it++;
+    std::list<int>::iterator std2_ite = std_list2.end();
+    std2_ite--;
+    ft::list<int>::iterator ft2_ite = ft_list2.end();
+    ft2_ite--;
+    std_list.splice (std_list.begin(), std_list2, std2_it, std2_ite);
+    ft_list.splice (ft_list.begin(), ft_list2, ft2_it, ft2_ite);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+    EXPECT_EQ(*std2_it, *ft2_it);
+    EXPECT_EQ(*std2_ite, *ft2_ite);
 }

@@ -361,27 +361,53 @@ list& operator=(const list& x) {
 /* Operations */
 //    entire list (1)
     void splice (iterator position, list& x) {
-        insert(position, x.begin(), x.end());
-        x.clear();
+        t_node *nodeToSplice =  position.getNodePtr();  // элемент в this list, до которого нужно прицепить элементы
+        nodeToSplice->prev->next = x._beginNode;        // прицепляем начало листа х до nodeToSplice
+        x._beginNode->prev = nodeToSplice->prev;
+        nodeToSplice->prev = x._endNode->prev;          // прицепляем конец листа х до nodeToSplice
+        x._endNode->prev->next = nodeToSplice;
+        if (position == begin()) {                      // если прицепляем в начало, то нужно поменять _beginNode
+            _beginNode = x._beginNode;
+            _endNode->next = x._beginNode;
+            if (_size == 0)
+                _endNode->prev = x._endNode->prev;
+        }
+        x._endNode->prev = x._endNode;                  // в листе х теперь нет ссылок на элементы,
+        x._endNode->next = x._endNode;                  // но элементы не удалены
+        x._beginNode = x._endNode;
+        _size += x._size;
+        x._size = 0;
     }
 //    single element (2)
     void splice (iterator position, list& x, iterator i) {
-        if (i == x.begin()) {
+        if (i == x.begin()) {                           // если из листа х нужно убрать первый элемент, то меняем ему _beginNode
             x._beginNode = i.getNodePtr()->next;
             x._endNode->next = x._beginNode;
             if (x._size == 1)
                 x._endNode->prev = x._endNode;
         }
-        t_node *nodeToSplice = i.getNodePtr();
-        nodeToSplice->prev->next = nodeToSplice->next;
-        nodeToSplice->next->prev = nodeToSplice->prev;
+        t_node *newNode = i.getNodePtr();               // элемент в x list, который нужно прицепить к this list
+        newNode->prev->next = newNode->next;            // расцепляем элемент в x list
+        newNode->next->prev = newNode->prev;
+        t_node *nodeToSplice =  position.getNodePtr();  // элемент в this list, до которого нужно прицепить элемент
+        nodeToSplice->prev->next = newNode;             // прицепляем newNode в this list до nodeToSplice
+        newNode->prev = nodeToSplice->prev;
+        newNode->next = nodeToSplice;
+        nodeToSplice->prev = newNode;
+        if (position == begin()) {                      // если прицепляем в начало, то нужно поменять _beginNode
+            _beginNode = newNode;
+            _endNode->next = newNode;
+            if (_size == 0) {
+                _endNode->prev = newNode;
+            }
+        }
+        _size++;
         x._size--;
-        insert(position, *i);
     }
 ////    element range (3)
     void splice (iterator position, list& x, iterator first, iterator last) {
-        for (; first != last; first++)
-            splice(position, x, first);
+        while (first != last)
+            splice(position, x, first++);
     }
 
     void remove (const value_type& val) {
