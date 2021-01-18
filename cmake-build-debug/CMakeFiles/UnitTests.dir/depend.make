@@ -24,6 +24,30 @@ CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.o: ../unit_tests/googletest/go
 CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-type-util.h
 CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.o: ../unit_tests/ListTests.cpp
 
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../includes/list.hpp
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../includes/queue.hpp
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-death-test.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-matchers.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-message.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-param-test.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-printers.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-test-part.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-typed-test.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest_pred_impl.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest_prod.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/custom/gtest-port.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/custom/gtest-printers.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-death-test-internal.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-filepath.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-internal.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-param-util.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-port-arch.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-port.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-string.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/internal/gtest-type-util.h
+CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o: ../unit_tests/QueueTests.cpp
+
 CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.o: ../includes/list.hpp
 CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.o: ../includes/stack.hpp
 CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.o: ../unit_tests/googletest/googletest/include/gtest/gtest-death-test.h

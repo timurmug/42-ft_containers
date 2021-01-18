@@ -10,6 +10,14 @@
 memory
 -
 
+../includes/queue.hpp
+list.hpp
+../includes/list.hpp
+
+../includes/stack.hpp
+list.hpp
+../includes/list.hpp
+
 ../unit_tests/googletest/googletest/include/gtest/gtest-death-test.h
 gtest/internal/gtest-death-test-internal.h
 ../unit_tests/googletest/googletest/include/gtest/gtest/internal/gtest-death-test-internal.h
@@ -341,4 +349,30 @@ cmath
 -
 iostream
 -
+
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/QueueTests.cpp
+gtest/gtest.h
+-
+queue
+-
+deque
+-
+list
+-
+vector
+-
+queue.hpp
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/queue.hpp
+
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/StackTests.cpp
+gtest/gtest.h
+-
+stack
+-
+deque
+-
+vector
+-
+stack.hpp
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/stack.hpp
 

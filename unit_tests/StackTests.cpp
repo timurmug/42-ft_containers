@@ -112,14 +112,14 @@ TEST(Stack, relational_operators) {
     std_stack.push(20);
     std_stack.top() -= 5;
     std::stack<int> std_stack2;
-    std_stack.push(15);
+    std_stack2.push(15);
 
     ft::stack<int> ft_stack;
     ft_stack.push(10);
     ft_stack.push(20);
     ft_stack.top() -= 5;
     ft::stack<int> ft_stack2;
-    ft_stack.push(15);
+    ft_stack2.push(15);
 
     EXPECT_EQ(std_stack == std_stack2, ft_stack == ft_stack2);
     EXPECT_EQ(std_stack != std_stack2, ft_stack != ft_stack2);

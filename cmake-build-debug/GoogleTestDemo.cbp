@@ -321,6 +321,9 @@
 		<Unit filename="/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/ListTests.cpp">
 			<Option target="UnitTests"/>
 		</Unit>
+		<Unit filename="/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/QueueTests.cpp">
+			<Option target="UnitTests"/>
+		</Unit>
 		<Unit filename="/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/StackTests.cpp">
 			<Option target="UnitTests"/>
 		</Unit>

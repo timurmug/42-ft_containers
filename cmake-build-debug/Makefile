@@ -268,6 +268,33 @@ unit_tests/ListTests.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.s
 .PHONY : unit_tests/ListTests.cpp.s
 
+unit_tests/QueueTests.o: unit_tests/QueueTests.cpp.o
+
+.PHONY : unit_tests/QueueTests.o
+
+# target to build an object file
+unit_tests/QueueTests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o
+.PHONY : unit_tests/QueueTests.cpp.o
+
+unit_tests/QueueTests.i: unit_tests/QueueTests.cpp.i
+
+.PHONY : unit_tests/QueueTests.i
+
+# target to preprocess a source file
+unit_tests/QueueTests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.i
+.PHONY : unit_tests/QueueTests.cpp.i
+
+unit_tests/QueueTests.s: unit_tests/QueueTests.cpp.s
+
+.PHONY : unit_tests/QueueTests.s
+
+# target to generate assembly for a file
+unit_tests/QueueTests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.s
+.PHONY : unit_tests/QueueTests.cpp.s
+
 unit_tests/StackTests.o: unit_tests/StackTests.cpp.o
 
 .PHONY : unit_tests/StackTests.o
@@ -315,6 +342,9 @@ help:
 	@echo "... unit_tests/ListTests.o"
 	@echo "... unit_tests/ListTests.i"
 	@echo "... unit_tests/ListTests.s"
+	@echo "... unit_tests/QueueTests.o"
+	@echo "... unit_tests/QueueTests.i"
+	@echo "... unit_tests/QueueTests.s"
 	@echo "... unit_tests/StackTests.o"
 	@echo "... unit_tests/StackTests.i"
 	@echo "... unit_tests/StackTests.s"

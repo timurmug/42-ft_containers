@@ -636,17 +636,15 @@ private:
         typename ft::list<T, Alloc>::const_iterator lhs_ite = lhs.end();
         typename ft::list<T, Alloc>::const_iterator rhs_it = rhs.begin();
         typename ft::list<T, Alloc>::const_iterator rhs_ite = rhs.end();
-        while (lhs_it != lhs_ite) {
-            if (rhs_it == rhs_ite)
+        while (lhs_it != lhs_ite && rhs_it != rhs_ite) {
+            if (*rhs_it < *lhs_it)
                 return false;
             if (*rhs_it > *lhs_it)
                 return true;
             rhs_it++;
             lhs_it++;
         }
-        if (rhs_it != rhs_ite)
-            return true;
-        return false;
+        return lhs_it == lhs_ite && rhs_it != rhs_ite; // lhs закончился, а rhs нет ?
     }
 
     template <class T, class Alloc>
