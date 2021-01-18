@@ -468,6 +468,83 @@ list& operator=(const list& x) {
         }
     }
 
+    void merge (list& x) {
+        if (&x == this)
+            return;
+        iterator it2 = x.begin();
+        iterator ite2 = x.end();
+        iterator it = begin();
+        iterator ite = end();
+        while (it2 != ite2) {
+            t_node *currNode2 = it2.getNodePtr();
+            while (it != ite) {
+                t_node *currNode = it.getNodePtr();
+                if (*currNode->data > *currNode2->data)
+                    break;
+                it++;
+            }
+            splice(it, x, it2++);
+        }
+    }
+    template <class Compare>
+    void merge (list& x, Compare comp) {
+        if (&x == this)
+            return;
+        iterator it2 = x.begin();
+        iterator ite2 = x.end();
+        iterator it = begin();
+        iterator ite = end();
+        while (it2 != ite2) {
+            t_node *currNode2 = it2.getNodePtr();
+            while (it != ite) {
+                t_node *currNode = it.getNodePtr();
+                if (comp(*currNode2->data, *currNode->data))
+                    break;
+                it++;
+            }
+            splice(it, x, it2++);
+        }
+    }
+
+    void sort() {
+        size_type max_i = size();
+        for (size_type i = 0; i < max_i; i++) {
+            iterator it = begin();
+            iterator ite = end();
+            while (it != ite) {
+                t_node *currNode = it.getNodePtr();
+                if (it != begin() && *currNode->data < *currNode->prev->data)
+                    _swapNodesValues(currNode, currNode->prev);
+                it++;
+            }
+        }
+    }
+    template <class Compare>
+    void sort (Compare comp) {
+        size_type max_i = size();
+        for (size_type i = 0; i < max_i; i++) {
+            iterator it = begin();
+            iterator ite = end();
+            while (it != ite) {
+                t_node *currNode = it.getNodePtr();
+                if (it != begin() && comp(*currNode->data, *currNode->prev->data))
+                    _swapNodesValues(currNode, currNode->prev);
+                it++;
+            }
+        }
+    }
+
+    void reverse() {
+        size_type max_i = size() / 2;
+        iterator it = begin();
+        iterator ite = --end();
+        for (size_type i = 0; i < max_i; i++) {
+            _swapNodesValues(it.getNodePtr(), ite.getNodePtr());
+            it++;
+            ite--;
+        }
+    }
+
 private:
 
 /* Additional functions */
@@ -519,8 +596,63 @@ private:
 		// _endNode = nullptr;
 	}
 
+	void _swapNodesValues(t_node *first, t_node *second) {
+        value_type *temp = first->data;
+        first->data = second->data;
+        second->data = temp;
+	}
+
 };
 
+/* Non-member function overloads */
+    template <class T, class Alloc>
+    bool operator== (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) {
+        typename ft::list<T, Alloc>::const_iterator lhs_it = lhs.begin();
+        typename ft::list<T, Alloc>::const_iterator lhs_ite = lhs.end();
+        typename ft::list<T, Alloc>::const_iterator rhs_it = rhs.begin();
+        typename ft::list<T, Alloc>::const_iterator rhs_ite = rhs.end();
+        while (lhs_it != lhs_ite) {
+            if (rhs_it == rhs_ite || *rhs_it != *lhs_it)
+                return false;
+            rhs_it++;
+            lhs_it++;
+        }
+        if (rhs_it != rhs_ite)
+            return false;
+        return true;
+    }
+
+    template <class T, class Alloc>
+    bool operator!= (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) { return !(lhs == rhs); }
+
+    template <class T, class Alloc>
+    bool operator<  (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) {
+        typename ft::list<T, Alloc>::const_iterator lhs_it = lhs.begin();
+        typename ft::list<T, Alloc>::const_iterator lhs_ite = lhs.end();
+        typename ft::list<T, Alloc>::const_iterator rhs_it = rhs.begin();
+        typename ft::list<T, Alloc>::const_iterator rhs_ite = rhs.end();
+        while (lhs_it != lhs_ite) {
+            if (rhs_it == rhs_ite || *rhs_it > *lhs_it)
+                return true;
+            rhs_it++;
+            lhs_it++;
+        }
+        if (rhs_it != rhs_ite)
+            return true;
+        return false;
+    }
+
+    template <class T, class Alloc>
+    bool operator<= (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) { return !(rhs < lhs); }
+
+    template <class T, class Alloc>
+    bool operator>  (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) { return rhs < lhs; }
+
+    template <class T, class Alloc>
+    bool operator>= (const list<T,Alloc>& lhs, const list<T,Alloc>& rhs) { return !(lhs < rhs); }
+
+    template <class T, class Alloc>
+    void swap (list<T,Alloc>& x, list<T,Alloc>& y) { x.swap((y)); }
 }
 
 #endif

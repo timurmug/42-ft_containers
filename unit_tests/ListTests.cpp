@@ -70,7 +70,6 @@ TEST(List_Base, empty_constructor3) {
     checkTwoListsAndDelete(std_list, ft_list);
 }
 TEST(List_Base, empty_constructor4) {
-
     std::list<char> *std_list = new std::list<char>();
     ft::list<char> *ft_list = new ft::list<char>();
     std_list->push_back('a');
@@ -130,6 +129,7 @@ TEST(List_Base, copy_constructor) {
     ft::list<int> ft_list;
     std::list<int> std_list2(std_list);
     ft::list<int> ft_list2(ft_list);
+    checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
 }
 TEST(List_Base, copy_constructor2) {
@@ -141,6 +141,7 @@ TEST(List_Base, copy_constructor2) {
     }
     std::list<int> std_list2(std_list);
     ft::list<int> ft_list2(ft_list);
+    checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
 }
 
@@ -163,13 +164,13 @@ TEST(List_Base, operator_equal) {
     ft_list.push_back(2);
     std_list2 = std_list;
     ft_list2 = ft_list;
+    checkTwoLists(std_list, ft_list);
     checkTwoLists(std_list2, ft_list2);
 }
 
 
 /* Iterators */
 TEST(List_Iterators, iterator) {
-
     int n = 10;
     std::list<std::string> std_list;
     ft::list<std::string> ft_list;
@@ -734,9 +735,7 @@ TEST(List_Operations, remove) {
     checkTwoLists(std_list, ft_list);
 }
 
-// a predicate implemented as a function:
 bool single_digit (const int& value) { return (value < 10); }
-// a predicate implemented as a class:
 struct is_odd {
     bool operator() (const int& value) { return (value % 2) == 1; }
 };
@@ -753,11 +752,8 @@ TEST(List_Operations, remove_if) {
     checkTwoLists(std_list, ft_list);
 }
 
-// a binary predicate implemented as a function:
 bool same_integral_part (double first, double second)
 { return ( int(first)==int(second) ); }
-
-// a binary predicate implemented as a class:
 struct is_near {
     bool operator() (double first, double second)
     { return (fabs(first-second)<5.0); }
@@ -778,4 +774,125 @@ TEST(List_Operations, unique) {
     checkTwoLists(std_list, ft_list);
 }
 
+bool mycomparison (double first, double second)
+{ return ( int(first)<int(second) ); }
+TEST(List_Operations, merge) {
+    std::list<double> std_list, std_list2;
+    std_list.push_back (3.1);
+    std_list.push_back (2.2);
+    std_list.push_back (2.9);
+    std_list2.push_back (3.7);
+    std_list2.push_back (7.1);
+    std_list2.push_back (1.4);
+    ft::list<double> ft_list, ft_list2;
+    ft_list.push_back (3.1);
+    ft_list.push_back (2.2);
+    ft_list.push_back (2.9);
+    ft_list2.push_back (3.7);
+    ft_list2.push_back (7.1);
+    ft_list2.push_back (1.4);
+    std_list.sort();
+    std_list2.sort();
+    ft_list.sort();
+    ft_list2.sort();
 
+    std_list.merge(std_list2);
+    ft_list.merge(ft_list2);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+
+    std_list2.push_back (2.1);
+    std_list.merge(std_list2, mycomparison);
+    ft_list2.push_back (2.1);
+    ft_list.merge(ft_list2, mycomparison);
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+}
+
+bool compare_nocase (const std::string& first, const std::string& second)
+{
+    unsigned int i=0;
+    while ( (i<first.length()) && (i<second.length()) )
+    {
+        if (tolower(first[i])<tolower(second[i])) return true;
+        else if (tolower(first[i])>tolower(second[i])) return false;
+        ++i;
+    }
+    return ( first.length() < second.length() );
+}
+TEST(List_Operations, sort) {
+    std::list<std::string> std_list;
+    ft::list<std::string> ft_list;
+    std_list.push_back ("one");
+    std_list.push_back ("two");
+    std_list.push_back ("Three");
+    std_list.push_back ("abc");
+    std_list.sort();
+    ft_list.push_back ("one");
+    ft_list.push_back ("two");
+    ft_list.push_back ("Three");
+    ft_list.push_back ("abc");
+    ft_list.sort();
+    checkTwoLists(std_list, ft_list);
+
+    std_list.sort(compare_nocase);
+    ft_list.sort(compare_nocase);
+    checkTwoLists(std_list, ft_list);
+
+    double mydoubles[] = {500, 16.3, 345, -10, 2, 77.5, 29, 0, -100, 321};
+    double mydoubles2[] = {500, 16.3, 345, -10, 2, 77.5, 29, 0, -100, 321};
+    std::list<double> std_list2 (mydoubles, mydoubles + sizeof(mydoubles) / sizeof(double) );
+    ft::list<double> ft_list2 (mydoubles2, mydoubles2 + sizeof(mydoubles2) / sizeof(double) );
+    std_list2.sort();
+    ft_list2.sort();
+    checkTwoLists(std_list2, ft_list2);
+}
+
+TEST(List_Operations, reverse) {
+    std::list<int> std_list;
+    for (int i = 1; i < 10; ++i)
+        std_list.push_back(i);
+    ft::list<int> ft_list;
+    for (int i = 1; i < 10; ++i)
+        ft_list.push_back(i);
+
+    std_list.reverse();
+    ft_list.reverse();
+    checkTwoLists(std_list, ft_list);
+}
+
+
+/* Non-member function overloads */
+TEST(List_NonMember_Fuction_Overloads, relational_operators) {
+    int std_ints[] = {10, 20, 30};
+    std::list<int> a(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    std::list<int> b(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    int std_ints2[] = {30, 20, 10};
+    std::list<int> c(std_ints2, std_ints2 + sizeof(std_ints2) / sizeof(int) );
+
+    int ft_ints[] = {10, 20, 30};
+    ft::list<int> a2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int) );
+    ft::list<int> b2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int));
+    int ft_ints2[] = {30, 20, 10};
+    ft::list<int> c2(ft_ints2, ft_ints2 + sizeof(ft_ints2) / sizeof(int));
+
+    EXPECT_EQ(a == b, a2 == b2);
+    EXPECT_EQ(b != c, b2 != c2);
+    EXPECT_EQ(b < c, b2 < c2);
+    EXPECT_EQ(c > b, c2 > b2);
+    EXPECT_EQ(a <= b, a2 <= b2);
+    EXPECT_EQ(a >= b, a2 >= b2);
+}
+
+TEST(List_NonMember_Fuction_Overloads, swap) {
+    std::list<char> std_list (3, 'a');
+    std::list<char> std_list2 (5, 'b');
+    std::swap(std_list, std_list2);
+
+    ft::list<char> ft_list (3,'a');
+    ft::list<char> ft_list2 (5,'b');
+    ft::swap(ft_list, ft_list2);
+
+    checkTwoLists(std_list, ft_list);
+    checkTwoLists(std_list2, ft_list2);
+}
