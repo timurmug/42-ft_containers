@@ -2,6 +2,7 @@
 #include <list>
 #include "list.hpp"
 #include <cmath>
+#include <iostream>
 
 template <typename T, typename S>
 void checkTwoListsAndDelete(T *std_list, S *ft_list) {
@@ -122,6 +123,14 @@ TEST(List_Base, range_constructor) {
     checkTwoListsAndDelete(std_list2, ft_list2);
     delete std_list;
     delete ft_list;
+
+    std::list<int> *std_list3 = new std::list<int>(10, 12);
+    ft::list<int> *ft_list3 = new ft::list<int>(10, 12);
+    std::list<int> *std_list4 = new std::list<int> (std_list3->begin(), --std_list3->end());
+    ft::list<int> *ft_list4 = new ft::list<int> (ft_list3->begin(), --ft_list3->end());
+    checkTwoListsAndDelete(std_list4, ft_list4);
+    delete std_list3;
+    delete ft_list3;
 }
 
 TEST(List_Base, copy_constructor) {
@@ -867,13 +876,13 @@ TEST(List_NonMember_Fuction_Overloads, relational_operators) {
     int std_ints[] = {10, 20, 30};
     std::list<int> a(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
     std::list<int> b(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
-    int std_ints2[] = {30, 20, 10};
+    int std_ints2[] = {10, 20};
     std::list<int> c(std_ints2, std_ints2 + sizeof(std_ints2) / sizeof(int) );
 
     int ft_ints[] = {10, 20, 30};
     ft::list<int> a2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int) );
     ft::list<int> b2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int));
-    int ft_ints2[] = {30, 20, 10};
+    int ft_ints2[] = {10, 20};
     ft::list<int> c2(ft_ints2, ft_ints2 + sizeof(ft_ints2) / sizeof(int));
 
     EXPECT_EQ(a == b, a2 == b2);

@@ -7,6 +7,6 @@ add_subdirectory(unit_tests/googletest)
 
 include_directories(unit_tests/googletest/googletest/include
         includes/)
-set(SRCS unit_tests/ListTests.cpp)
+set(SRCS unit_tests/ListTests.cpp unit_tests/StackTests.cpp)
 add_executable(UnitTests ${SRCS})
 target_link_libraries(UnitTests gtest gtest_main)

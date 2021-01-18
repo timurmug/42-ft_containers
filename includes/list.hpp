@@ -2,15 +2,20 @@
 # define LIST_HPP
 
 #include <memory>
-#include <iostream>
 
 namespace ft {
+
+template<bool Cond, class T = void>
+struct enable_if {};
+
+template<class T>
+struct enable_if<true, T> { typedef T type; };
 
 template < class T, class Alloc = std::allocator<T> >
 class list {
 
 public:
-/* Types */
+/* Member types */
 	typedef T 											value_type;
 	typedef Alloc										allocator_type;
 	typedef typename allocator_type::reference 			reference;
@@ -40,7 +45,6 @@ private:
 	typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
 	allocator_rebind_type 	_alloc_rebind;
 
-
 public:
 /* Constructors */
 	// (1) empty container constructor (default constructor)
@@ -54,7 +58,8 @@ public:
 	}
 	// (3) range constructor
 	template <class InputIterator>
-  	list (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
+  	list (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
+          typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0)
 																	: _alloc(alloc), _size(0) {
         _initStartNodes();
 		while (first != last){
@@ -87,7 +92,7 @@ list& operator=(const list& x) {
 		_deleteAllNotes();
 	}
 /* Iterators classes */
-    class iterator {
+    class iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node   *_node_ptr;
     public:
@@ -116,7 +121,7 @@ list& operator=(const list& x) {
         t_node *getNodePtr() const { return _node_ptr; }
     };
 
-    class const_iterator {
+    class const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node   *_node_ptr;
     public:
@@ -149,7 +154,7 @@ list& operator=(const list& x) {
         const_iterator operator--(int) { const_iterator tmp = *this; operator--(); return tmp; }
     };
 
-    class reverse_iterator {
+    class reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node   *_node_ptr;
     public:
@@ -178,7 +183,7 @@ list& operator=(const list& x) {
         t_node *getNodePtr() const { return _node_ptr; }
     };
 
-    class const_reverse_iterator {
+    class const_reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node   *_node_ptr;
     public:
@@ -632,7 +637,9 @@ private:
         typename ft::list<T, Alloc>::const_iterator rhs_it = rhs.begin();
         typename ft::list<T, Alloc>::const_iterator rhs_ite = rhs.end();
         while (lhs_it != lhs_ite) {
-            if (rhs_it == rhs_ite || *rhs_it > *lhs_it)
+            if (rhs_it == rhs_ite)
+                return false;
+            if (*rhs_it > *lhs_it)
                 return true;
             rhs_it++;
             lhs_it++;

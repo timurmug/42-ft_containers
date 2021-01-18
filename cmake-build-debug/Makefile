@@ -268,6 +268,33 @@ unit_tests/ListTests.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.s
 .PHONY : unit_tests/ListTests.cpp.s
 
+unit_tests/StackTests.o: unit_tests/StackTests.cpp.o
+
+.PHONY : unit_tests/StackTests.o
+
+# target to build an object file
+unit_tests/StackTests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.o
+.PHONY : unit_tests/StackTests.cpp.o
+
+unit_tests/StackTests.i: unit_tests/StackTests.cpp.i
+
+.PHONY : unit_tests/StackTests.i
+
+# target to preprocess a source file
+unit_tests/StackTests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.i
+.PHONY : unit_tests/StackTests.cpp.i
+
+unit_tests/StackTests.s: unit_tests/StackTests.cpp.s
+
+.PHONY : unit_tests/StackTests.s
+
+# target to generate assembly for a file
+unit_tests/StackTests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/UnitTests.dir/build.make CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.s
+.PHONY : unit_tests/StackTests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -288,6 +315,9 @@ help:
 	@echo "... unit_tests/ListTests.o"
 	@echo "... unit_tests/ListTests.i"
 	@echo "... unit_tests/ListTests.s"
+	@echo "... unit_tests/StackTests.o"
+	@echo "... unit_tests/StackTests.i"
+	@echo "... unit_tests/StackTests.s"
 .PHONY : help
 
 

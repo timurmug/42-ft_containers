@@ -9,8 +9,6 @@
 ../includes/list.hpp
 memory
 -
-iostream
--
 
 ../unit_tests/googletest/googletest/include/gtest/gtest-death-test.h
 gtest/internal/gtest-death-test-internal.h
@@ -340,5 +338,7 @@ list
 list.hpp
 /Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/list.hpp
 cmath
+-
+iostream
 -
 
