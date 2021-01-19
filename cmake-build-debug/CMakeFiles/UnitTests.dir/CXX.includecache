@@ -6,17 +6,9 @@
 
 #IncludeRegexTransform: 
 
-../includes/list.hpp
+../includes/vector.hpp
 memory
 -
-
-../includes/queue.hpp
-list.hpp
-../includes/list.hpp
-
-../includes/stack.hpp
-list.hpp
-../includes/list.hpp
 
 ../unit_tests/googletest/googletest/include/gtest/gtest-death-test.h
 gtest/internal/gtest-death-test-internal.h
@@ -338,41 +330,11 @@ cxxabi.h
 acxx_demangle.h
 -
 
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/ListTests.cpp
-gtest/gtest.h
--
-list
--
-list.hpp
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/list.hpp
-cmath
--
-iostream
--
-
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/QueueTests.cpp
-gtest/gtest.h
--
-queue
--
-deque
--
-list
--
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/VectorTests.cpp
+vector.hpp
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/vector.hpp
 vector
 -
-queue.hpp
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/queue.hpp
-
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/StackTests.cpp
 gtest/gtest.h
--
-stack
--
-deque
--
-vector
--
-stack.hpp
-/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/stack.hpp
+/Users/qtamaril/Desktop/qtamaril/my_git/42-ft_containers/unit_tests/gtest/gtest.h
 

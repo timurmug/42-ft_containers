@@ -4,3 +4,4 @@ ft_containers
 a.out
 ft_containers.dSYM
 .idea/
+cmake-build-debug

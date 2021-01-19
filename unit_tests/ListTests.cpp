@@ -108,6 +108,10 @@ TEST(List_Base, fill_constructor1) {
     std::list<int> *std_list = new std::list<int>(4);
     ft::list<int> *ft_list = new ft::list<int>(4);
     checkTwoListsAndDelete(std_list, ft_list);
+
+    std::list<char> *std_list2 = new std::list<char>(0, 'a');
+    ft::list<char> *ft_list2 = new ft::list<char>(0, 'a');
+    checkTwoListsAndDelete(std_list2, ft_list2);
 }
 TEST(List_Base, fill_constructor2) {
     std::list<std::string> *std_list = new std::list<std::string>(10, "abc");

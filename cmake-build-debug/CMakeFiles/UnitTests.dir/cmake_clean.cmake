@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/UnitTests.dir/unit_tests/ListTests.cpp.o"
   "CMakeFiles/UnitTests.dir/unit_tests/QueueTests.cpp.o"
   "CMakeFiles/UnitTests.dir/unit_tests/StackTests.cpp.o"
+  "CMakeFiles/UnitTests.dir/unit_tests/VectorTests.cpp.o"
   "UnitTests"
   "UnitTests.pdb"
 )

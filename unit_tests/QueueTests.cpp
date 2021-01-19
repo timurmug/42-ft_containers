@@ -9,22 +9,22 @@
 #include "queue.hpp"
 
 TEST(Queue, constructor) {
-    std::deque<int> mydeck (3,100);        // deque with 3 elements
-    std::vector<int> myvector (2,200);         // list with 2 elements
+    std::deque<int> mydeck (3,100);
+    std::vector<int> myvector (2,200);
 
-    std::queue<int> std_queue;                 // empty queue
-    std::queue<int> std_queue2 (mydeck);       // queue initialized to copy of deque
+    std::queue<int> std_queue;
+    std::queue<int> std_queue2 (mydeck);
 
-    std::queue<int,std::list<int> > std_queue3; // empty queue with list as underlying container
+    std::queue<int,std::list<int> > std_queue3;
     std::queue<int,std::vector<int> > std_queue4 (myvector);
 
-    ft::list<int> ft_list (3,100);        // deque with 3 elements
-    std::vector<int> myvector2 (2,200);         // list with 2 elements
+    ft::list<int> ft_list (3,100);
+    std::vector<int> myvector2 (2,200);
 
-    ft::queue<int> ft_queue;                 // empty queue
-    ft::queue<int> ft_queue2 (ft_list);       // queue initialized to copy of deque
+    ft::queue<int> ft_queue;
+    ft::queue<int> ft_queue2 (ft_list);
 
-    ft::queue<int,std::list<int> > ft_queue3; // empty queue with list as underlying container
+    ft::queue<int,std::list<int> > ft_queue3;
     ft::queue<int,std::vector<int> > ft_queue4 (myvector2);
 
     EXPECT_EQ(std_queue.size(), ft_queue.size());
@@ -127,14 +127,12 @@ TEST(Queue, relational_operators) {
     std::queue<int> std_queue;
     std_queue.push(10);
     std_queue.push(20);
-//    std_queue.back() -= 5;
     std::queue<int> std_stack2;
     std_stack2.push(15);
 
     ft::queue<int> ft_queue;
     ft_queue.push(10);
     ft_queue.push(20);
-//    ft_queue.back() -= 5;
     ft::queue<int> ft_stack2;
     ft_stack2.push(15);
 

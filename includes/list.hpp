@@ -7,7 +7,6 @@ namespace ft {
 
 template<bool Cond, class T = void>
 struct enable_if {};
-
 template<class T>
 struct enable_if<true, T> { typedef T type; };
 
@@ -37,13 +36,12 @@ private:
 	}						t_node;
 
 /* Local variables */
-	allocator_type			_alloc;
-	size_type				_size;
-	t_node					*_beginNode;
-	t_node					*_endNode;
-
-	typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
-	allocator_rebind_type 	_alloc_rebind;
+    typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
+    allocator_rebind_type 	_alloc_rebind;
+    allocator_type			_alloc;
+    size_type				_size;
+    t_node					*_beginNode;
+    t_node					*_endNode;
 
 public:
 /* Constructors */
@@ -59,7 +57,7 @@ public:
 	// (3) range constructor
 	template <class InputIterator>
   	list (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
-          typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0)
+          typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0)
 																	: _alloc(alloc), _size(0) {
         _initStartNodes();
 		while (first != last){
@@ -68,10 +66,9 @@ public:
 		}
 	}
 	// (4) copy constructor
-    list (const list& x) : _alloc(x._alloc), _size(0) { _initStartNodes(); *this = x; }
+    list (const list& x) : _alloc(x._alloc), _size(x._size) { _initStartNodes(); *this = x; }
 
 /* Assignation operator */
-
 list& operator=(const list& x) {
 	if (this != &x) {
         clear();
@@ -91,6 +88,8 @@ list& operator=(const list& x) {
 		// std::cout << "delete" << std::endl;
 		_deleteAllNotes();
 	}
+
+
 /* Iterators classes */
     class iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
