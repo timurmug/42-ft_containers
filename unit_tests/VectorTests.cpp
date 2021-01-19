@@ -13,7 +13,6 @@ void checkTwoVectors(T & std_vector, S & ft_vector) {
     typename S::iterator ft_it = ft_vector.begin();
     typename S::iterator ft_ite = ft_vector.end();
     EXPECT_EQ(std_vector.size(), ft_vector.size());
-    EXPECT_EQ(std_vector.capacity(), ft_vector.capacity());
     ASSERT_EQ((std_it == std_ite), (ft_it == ft_ite));
     while (std_it != std_ite && ft_it != ft_ite)
         EXPECT_EQ(*std_it++, *ft_it++);
@@ -82,6 +81,12 @@ TEST(Vector_Base, fill_constructor) {
     std::vector<int> std_vector(4);
     ft::vector<int> ft_vector(4);
     checkTwoVectors(std_vector, ft_vector);
+    for (int i = 0; i < 10; i++) {
+        std_vector.push_back(1);
+        ft_vector.push_back(1);
+        checkTwoVectors(std_vector, ft_vector);
+    }
+    checkTwoVectors(std_vector, ft_vector);
 
     std::vector<std::string> std_vector2(10, "abc");
     ft::vector<std::string> ft_vector2(10, "abc");
@@ -101,18 +106,173 @@ TEST(Vector_Base, range_constructor) {
     ft::vector<std::string> ft_vector2(ft_vector.begin(), (ft_vector.end()));
     checkTwoVectors(std_vector, ft_vector);
     checkTwoVectors(std_vector2, ft_vector2);
-    printTwoVectors(std_vector2, ft_vector2);
 
 
-//    std::list<int> *std_list3 = new std::list<int>(10, 12);
-//    ft::list<int> *ft_list3 = new ft::list<int>(10, 12);
-//    std::list<int> *std_list4 = new std::list<int> (std_list3->begin(), --std_list3->end());
-//    ft::list<int> *ft_list4 = new ft::list<int> (ft_list3->begin(), --ft_list3->end());
-//    checkTwoListsAndDelete(std_list4, ft_list4);
-//    delete std_list3;
-//    delete ft_list3;
+    std::vector<int> std_vector3(10, 12);
+    ft::vector<int> ft_vector3(10, 12);
+    std::vector<int> std_vector4(std_vector3.begin(), --std_vector3.end());
+    ft::vector<int> ft_vector4(ft_vector3.begin(), --ft_vector3.end());
+    checkTwoVectors(std_vector3, ft_vector3);
+    checkTwoVectors(std_vector4, ft_vector4);
+
 }
 
+TEST(Vector_Base, copy_constructor) {
+    FAIL();
+}
+
+TEST(Vector_Base, construct_from_arrays) {
+    int myints[] = {16,2,77,29};
+    std::vector<int> std_vector (myints, myints + sizeof(myints) / sizeof(int) );
+    ft::vector<int> ft_vector (myints, myints + sizeof(myints) / sizeof(int) );
+    checkTwoVectors(std_vector, ft_vector);
+}
+
+TEST(Vector_Base, operator_equal) {
+    FAIL();
+}
+
+
+/* Iterators */
+TEST(Vector_Iterators, iterator) {
+    std::string strings[] = {"one","two","three", "four", "five", "six", "seven", "eight", "nine"};
+    std::vector<std::string> std_vector (strings, strings + sizeof(strings) / sizeof(std::string) );
+    ft::vector<std::string> ft_vector (strings, strings + sizeof(strings) / sizeof(std::string) );
+    checkTwoVectors(std_vector, ft_vector);
+
+    std::vector<std::string>::iterator std_it = std_vector.begin();
+    std::vector<std::string>::iterator std_ite = std_vector.end();
+    ft::vector<std::string>::iterator ft_it = ft_vector.begin();
+    ft::vector<std::string>::iterator ft_ite = ft_vector.end();
+
+    EXPECT_EQ(*std_it, *ft_it);
+    EXPECT_EQ(*(--std_ite), *(--ft_ite));
+
+    while (std_it != std_ite) {
+        EXPECT_EQ(*std_it, *ft_it);
+        std_it++;
+        ft_it++;
+    }
+    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+
+    std_it = std_vector.begin();
+    ft_it = ft_vector.begin();
+
+    while (std_it != std_ite) {
+        EXPECT_EQ(*std_it, *ft_it);
+        std_ite--;
+        --std_ite;
+        ft_ite--;
+        --ft_ite;
+    }
+    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+
+    std_it = std_vector.begin();
+    ft_it = ft_vector.begin();
+    std_ite = std_vector.end();
+    ft_ite = ft_vector.end();
+    EXPECT_EQ(*(std_it + 3), *(ft_it + 3));
+    EXPECT_EQ(*(std_ite - 4), *(ft_ite - 4));
+
+    std_it += 2;
+    ft_it += 2;
+    std_ite -= 3;
+    ft_ite -= 3;
+    EXPECT_EQ(*std_it, *ft_it);
+    EXPECT_EQ(*std_ite, *ft_ite);
+    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+    EXPECT_EQ(std_it != std_ite, ft_it != ft_ite);
+    EXPECT_EQ(std_it <= std_ite, ft_it <= ft_ite);
+    EXPECT_EQ(std_it >= std_ite, ft_it >= ft_ite);
+    EXPECT_EQ(std_it < std_ite, ft_it < ft_ite);
+    EXPECT_EQ(std_it > std_ite, ft_it > ft_ite);
+
+    std_it = std_ite;
+    ft_it = ft_ite;
+    EXPECT_EQ(*std_it, *ft_it);
+    EXPECT_EQ(*std_ite, *ft_ite);
+    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+    EXPECT_EQ(std_it != std_ite, ft_it != ft_ite);
+    EXPECT_EQ(std_it <= std_ite, ft_it <= ft_ite);
+    EXPECT_EQ(std_it >= std_ite, ft_it >= ft_ite);
+    EXPECT_EQ(std_it < std_ite, ft_it < ft_ite);
+    EXPECT_EQ(std_it > std_ite, ft_it > ft_ite);
+
+    std_it = std_vector.begin();
+    ft_it = ft_vector.begin();
+    for (size_t i = 0; i <= std_vector.size(); i++)
+        EXPECT_EQ(std_it[i], ft_it[i]);
+}
+
+TEST(Vector_Iterators, const_iterator) {
+    char chars[] = {'a','b','c', 'd', 'e', 'f', 'g', 'h'};
+    std::vector<char> std_vector (chars, chars + sizeof(chars) / sizeof(char) );
+    ft::vector<char> ft_vector (chars, chars + sizeof(chars) / sizeof(char) );
+    checkTwoVectors(std_vector, ft_vector);
+
+    std::vector<char>::const_iterator std_it = std_vector.begin();
+//    std::vector<char>::const_iterator std_ite = std_vector.end();
+    ft::vector<char>::const_iterator ft_it = ft_vector.begin();
+//    ft::vector<char>::const_iterator ft_ite = ft_vector.end();
+
+    EXPECT_EQ(*std_it, *ft_it);
+//    EXPECT_EQ(*(--std_ite), *(--ft_ite));
+//
+//    while (std_it != std_ite) {
+//        EXPECT_EQ(*std_it, *ft_it);
+//        std_it++;
+//        ft_it++;
+//    }
+//    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+//
+//    std_it = std_vector.begin();
+//    ft_it = ft_vector.begin();
+//
+//    while (std_it != std_ite) {
+//        EXPECT_EQ(*std_it, *ft_it);
+//        std_ite--;
+//        --std_ite;
+//        ft_ite--;
+//        --ft_ite;
+//    }
+//    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+//
+//    std_it = std_vector.begin();
+//    ft_it = ft_vector.begin();
+//    std_ite = std_vector.end();
+//    ft_ite = ft_vector.end();
+//    EXPECT_EQ(*(std_it + 3), *(ft_it + 3));
+//    EXPECT_EQ(*(std_ite - 4), *(ft_ite - 4));
+//
+//    std_it += 2;
+//    ft_it += 2;
+//    std_ite -= 3;
+//    ft_ite -= 3;
+//    EXPECT_EQ(*std_it, *ft_it);
+//    EXPECT_EQ(*std_ite, *ft_ite);
+//    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+//    EXPECT_EQ(std_it != std_ite, ft_it != ft_ite);
+//    EXPECT_EQ(std_it <= std_ite, ft_it <= ft_ite);
+//    EXPECT_EQ(std_it >= std_ite, ft_it >= ft_ite);
+//    EXPECT_EQ(std_it < std_ite, ft_it < ft_ite);
+//    EXPECT_EQ(std_it > std_ite, ft_it > ft_ite);
+//
+//    std_it = std_ite;
+//    ft_it = ft_ite;
+//    EXPECT_EQ(*std_it, *ft_it);
+//    EXPECT_EQ(*std_ite, *ft_ite);
+//    EXPECT_EQ(std_it == std_ite, ft_it == ft_ite);
+//    EXPECT_EQ(std_it != std_ite, ft_it != ft_ite);
+//    EXPECT_EQ(std_it <= std_ite, ft_it <= ft_ite);
+//    EXPECT_EQ(std_it >= std_ite, ft_it >= ft_ite);
+//    EXPECT_EQ(std_it < std_ite, ft_it < ft_ite);
+//    EXPECT_EQ(std_it > std_ite, ft_it > ft_ite);
+//
+//    std_it = std_vector.begin();
+//    ft_it = ft_vector.begin();
+//    for (size_t i = 0; i <= std_vector.size(); i++)
+//        EXPECT_EQ(std_it[i], ft_it[i]);
+}
 
 //TEST(Vector_tests, unknown) {
 //    std::string myints2[] = {"asfasd","second","thrid"};

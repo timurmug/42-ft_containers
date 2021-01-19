@@ -364,10 +364,10 @@ TEST(List_Capacity_And_Element_Access, back) {
 
 /* Modifiers */
 TEST(List_Modifiers, assign) {
-    std::list<char> std_list;
-    std::list<char> std_list2;
-    ft::list<char> ft_list;
-    ft::list<char> ft_list2;
+    std::list<int> std_list;
+    std::list<int> std_list2;
+    ft::list<int> ft_list;
+    ft::list<int> ft_list2;
 
     std_list.assign(7,'a');
     ft_list.assign(7,'a');
@@ -452,10 +452,10 @@ TEST(List_Modifiers, pop_back) {
 }
 
 TEST(List_Modifiers, insert) {
-    std::list<char> std_list;
-    ft::list<char> ft_list;
-    std::list<char>::iterator std_it;
-    ft::list<char>::iterator ft_it;
+    std::list<int> std_list;
+    ft::list<int> ft_list;
+    std::list<int>::iterator std_it;
+    ft::list<int>::iterator ft_it;
 
     for (char i = 'a'; i <= 'e'; ++i) {
         std_list.push_back(i);
@@ -474,8 +474,8 @@ TEST(List_Modifiers, insert) {
     --std_it;
     --ft_it;
 
-    std::list<char> std_list_to_copy;
-    ft::list<char> ft_list_to_copy;
+    std::list<int> std_list_to_copy;
+    ft::list<int> ft_list_to_copy;
     for (char i = '1'; i <= '4'; ++i) {
         std_list_to_copy.push_back(i);
         ft_list_to_copy.push_back(i);

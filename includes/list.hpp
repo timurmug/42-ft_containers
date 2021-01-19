@@ -238,7 +238,7 @@ list& operator=(const list& x) {
 /* Modifiers */
 //  range (1)
     template <class InputIterator>
-    void assign (InputIterator first, InputIterator last) {
+    void assign (InputIterator first, InputIterator last, typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
         clear();
         while (first != last){
             this->push_back(*first);
@@ -314,7 +314,7 @@ list& operator=(const list& x) {
     }
 //  range (3)
     template <class InputIterator>
-    void insert (iterator position, InputIterator first, InputIterator last) {
+    void insert (iterator position, InputIterator first, InputIterator last, typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
         for (; first != last; first++)
             insert(position, *first);
     }

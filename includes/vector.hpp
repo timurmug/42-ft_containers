@@ -35,7 +35,7 @@ private:
     allocator_type          _alloc;
     size_type				_size;
     size_type				_capacity;
-    value_type              *_buffer;
+    pointer                 _buffer;
 
 public:
 /* Constructors */
@@ -73,46 +73,88 @@ public:
 /* Iterators classes */
     class  iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
-        value_type  *_elem_ptr;
+        pointer  _elem_ptr;
     public:
-        iterator() : _elem_ptr(nullptr) { }
-        iterator(value_type* elem_ptr) : _elem_ptr(elem_ptr) { }
-        iterator(const iterator& src) { *this = src; }
-        virtual ~iterator() { }
-        iterator & operator=(iterator const & rhs) {
+        iterator()                  : _elem_ptr(nullptr)    { }
+        iterator(pointer elem_ptr)  : _elem_ptr(elem_ptr)   { }
+        iterator(const iterator& src)                       { *this = src; }
+        virtual ~iterator()                                 { }
+        iterator & operator=(iterator const & rhs)          {
             if (this != &rhs)
                 this->_elem_ptr = rhs._elem_ptr;
             return *this;
         }
 
-        bool operator==(const iterator& rhs) const { return this->_elem_ptr == rhs._elem_ptr; }
-        bool operator!=(const iterator& rhs) const { return this->_elem_ptr != rhs._elem_ptr; }
+        bool                operator==(const iterator& rhs)         const   { return this->_elem_ptr == rhs._elem_ptr; }
+        bool                operator!=(const iterator& rhs)         const   { return this->_elem_ptr != rhs._elem_ptr; }
 
-        value_type& operator*() const { return *_elem_ptr; }
-        value_type* operator->() const { return _elem_ptr; }
+        value_type&         operator*()                             const   { return *_elem_ptr; }
+        value_type*         operator->()                            const   { return _elem_ptr; }
 
-        iterator& operator++() { _elem_ptr++; return *this; }
-        iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
-        iterator& operator--() { _elem_ptr--; return *this; }
-        iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
+        iterator&           operator++()                                    { _elem_ptr++; return *this; }
+        iterator            operator++(int)                                 { iterator tmp = *this; operator++(); return tmp; }
+        iterator&           operator--()                                    { _elem_ptr--; return *this; }
+        iterator            operator--(int)                                 { iterator tmp = *this; operator--(); return tmp; }
 
-        iterator& operator+(difference_type const & rhs) { return iterator(&(*_elem_ptr + rhs)); }
-        iterator& operator-(difference_type const & rhs) { return iterator(&(*_elem_ptr - rhs)); }
+        iterator            operator+(difference_type const & rhs)  const   { return iterator(_elem_ptr + rhs); }
+        iterator            operator-(difference_type const & rhs)  const   { return iterator(_elem_ptr - rhs); }
 
-        bool operator<(const iterator& rhs) const { return this->_elem_ptr < rhs._elem_ptr; }
-        bool operator>(const iterator& rhs) const { return this->_elem_ptr > rhs._elem_ptr; }
-        bool operator<=(const iterator& rhs) const { return this->_elem_ptr <= rhs._elem_ptr; }
-        bool operator>=(const iterator& rhs) const { return this->_elem_ptr >= rhs._elem_ptr; }
+        bool                operator<(const iterator& rhs)          const   { return this->_elem_ptr < rhs._elem_ptr; }
+        bool                operator>(const iterator& rhs)          const   { return this->_elem_ptr > rhs._elem_ptr; }
+        bool                operator<=(const iterator& rhs)         const   { return this->_elem_ptr <= rhs._elem_ptr; }
+        bool                operator>=(const iterator& rhs)         const   { return this->_elem_ptr >= rhs._elem_ptr; }
 
-        iterator& operator+=(difference_type const & rhs) { _elem_ptr = &(*_elem_ptr + rhs); return *this; }
-        iterator& operator-=(difference_type const & rhs) { _elem_ptr = &(*_elem_ptr - rhs); return *this; }
+        iterator&           operator+=(difference_type const & rhs)         { _elem_ptr += rhs; return *this; }
+        iterator&           operator-=(difference_type const & rhs)         { _elem_ptr -= rhs; return *this; }
 
-        iterator& operator[](difference_type const & i) { return *(_elem_ptr + i); }
+        value_type&         operator[](difference_type const & i) { return *(_elem_ptr + i); }
+    };
+
+    class  const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        pointer  _elem_ptr;
+    public:
+        const_iterator()                            : _elem_ptr(nullptr)    { }
+        const_iterator(pointer elem_ptr)            : _elem_ptr(elem_ptr)   { }
+        const_iterator(const const_iterator& src)                           { *this = src; }
+        const_iterator(const iterator& src)                                 { *this = src; }
+        virtual ~const_iterator()                                           { }
+        const_iterator & operator=(const_iterator const & rhs)              {
+            if (this != &rhs)
+                this->_elem_ptr = rhs._elem_ptr;
+            return *this;
+        }
+
+        bool                operator==(const const_iterator& rhs)   const   { return this->_elem_ptr == rhs._elem_ptr; }
+        bool                operator!=(const const_iterator& rhs)   const   { return this->_elem_ptr != rhs._elem_ptr; }
+
+        reference           operator*()                             const   { return *_elem_ptr; }
+        value_type*         operator->()                            const   { return _elem_ptr; }
+
+        const_iterator&     operator++()                                    { _elem_ptr++; return *this; }
+        const_iterator      operator++(int)                                 { const_iterator tmp = *this; operator++(); return tmp; }
+        const_iterator&     operator--()                                    { _elem_ptr--; return *this; }
+        const_iterator      operator--(int)                                 { const_iterator tmp = *this; operator--(); return tmp; }
+
+        const_iterator      operator+(difference_type const & rhs)  const   { return const_iterator(_elem_ptr + rhs); }
+        const_iterator      operator-(difference_type const & rhs)  const   { return const_iterator(_elem_ptr - rhs); }
+
+        bool                operator<(const const_iterator& rhs)    const   { return this->_elem_ptr < rhs._elem_ptr; }
+        bool                operator>(const const_iterator& rhs)    const   { return this->_elem_ptr > rhs._elem_ptr; }
+        bool                operator<=(const const_iterator& rhs)   const   { return this->_elem_ptr <= rhs._elem_ptr; }
+        bool                operator>=(const const_iterator& rhs)   const   { return this->_elem_ptr >= rhs._elem_ptr; }
+
+        const_iterator&     operator+=(difference_type const & rhs)         { _elem_ptr += rhs; return *this; }
+        const_iterator&     operator-=(difference_type const & rhs)         { _elem_ptr -= rhs; return *this; }
+
+        reference           operator[](difference_type const & i)           { return *(_elem_ptr + i); }
     };
 
 /* Iterators */
     iterator 				begin()             { return iterator(_buffer); }
+    const_iterator          begin()     const   { return const_iterator(_buffer); }
     iterator				end()               { return iterator(_buffer + _size);	}
+    const_iterator			end()       const   { return const_iterator(_buffer + _size); }
 
 /* Capacity */
     size_type   size()                  const       { return _size; }
