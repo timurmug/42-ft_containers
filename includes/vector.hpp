@@ -61,13 +61,27 @@ public:
         }
     }
 //    copy (4)
-    vector (const vector& x) : _alloc(x._alloc), _size(x._size), _capacity(x._capacity) { *this = x; }
+    vector (const vector& x) : _size(0), _capacity(0) { *this = x; }
 
     ~vector() {
-        for (size_type i = 0; i < _size; i++) {
-            _alloc.destroy(_buffer + i);
+        _clean();
+    }
+
+    vector& operator= (const vector& x) {
+        if (this != &x) {
+            _clean();
+            _alloc = x._alloc;
+            _capacity = 0;
+            _size = 0;
+            _buffer = nullptr;
+            const_iterator it = x.begin();
+            const_iterator ite = x.end();
+            while (it != ite) {
+                push_back(*it);
+                it++;
+            }
         }
-        _alloc.deallocate(_buffer, _capacity);
+        return *this;
     }
 
 /* Iterators classes */
@@ -107,7 +121,8 @@ public:
         iterator&           operator+=(difference_type const & rhs)         { _elem_ptr += rhs; return *this; }
         iterator&           operator-=(difference_type const & rhs)         { _elem_ptr -= rhs; return *this; }
 
-        value_type&         operator[](difference_type const & i) { return *(_elem_ptr + i); }
+        value_type&         operator[](difference_type const & i)           { return *(_elem_ptr + i); }
+        pointer             getElemPtr()                            const   { return _elem_ptr; }
     };
 
     class  const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
@@ -122,6 +137,10 @@ public:
         const_iterator & operator=(const_iterator const & rhs)              {
             if (this != &rhs)
                 this->_elem_ptr = rhs._elem_ptr;
+            return *this;
+        }
+        const_iterator & operator=(iterator const & rhs)                    {
+            this->_elem_ptr = rhs.getElemPtr();
             return *this;
         }
 
@@ -150,16 +169,105 @@ public:
         reference           operator[](difference_type const & i)           { return *(_elem_ptr + i); }
     };
 
+    class  reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        pointer  _elem_ptr;
+    public:
+        reverse_iterator()                  : _elem_ptr(nullptr)    { }
+        reverse_iterator(pointer elem_ptr)  : _elem_ptr(elem_ptr)   { }
+        reverse_iterator(const reverse_iterator& src)                       { *this = src; }
+        virtual ~reverse_iterator()                                 { }
+        reverse_iterator & operator=(reverse_iterator const & rhs)          {
+            if (this != &rhs)
+                this->_elem_ptr = rhs._elem_ptr;
+            return *this;
+        }
+
+        bool                operator==(const reverse_iterator& rhs) const   { return this->_elem_ptr == rhs._elem_ptr; }
+        bool                operator!=(const reverse_iterator& rhs) const   { return this->_elem_ptr != rhs._elem_ptr; }
+
+        value_type&         operator*()                             const   { return *_elem_ptr; }
+        value_type*         operator->()                            const   { return _elem_ptr; }
+
+        reverse_iterator&   operator++()                                    { _elem_ptr--; return *this; }
+        reverse_iterator    operator++(int)                                 { reverse_iterator tmp = *this; operator++(); return tmp; }
+        reverse_iterator&   operator--()                                    { _elem_ptr++; return *this; }
+        reverse_iterator    operator--(int)                                 { reverse_iterator tmp = *this; operator--(); return tmp; }
+
+        reverse_iterator    operator+(difference_type const & rhs)  const   { return reverse_iterator(_elem_ptr - rhs); }
+        reverse_iterator    operator-(difference_type const & rhs)  const   { return reverse_iterator(_elem_ptr + rhs); }
+
+        bool                operator<(const reverse_iterator& rhs)  const   { return this->_elem_ptr > rhs._elem_ptr; }
+        bool                operator>(const reverse_iterator& rhs)  const   { return this->_elem_ptr < rhs._elem_ptr; }
+        bool                operator<=(const reverse_iterator& rhs) const   { return this->_elem_ptr >= rhs._elem_ptr; }
+        bool                operator>=(const reverse_iterator& rhs) const   { return this->_elem_ptr <= rhs._elem_ptr; }
+
+        reverse_iterator&   operator+=(difference_type const & rhs)         { _elem_ptr -= rhs; return *this; }
+        reverse_iterator&   operator-=(difference_type const & rhs)         { _elem_ptr += rhs; return *this; }
+
+        value_type&         operator[](difference_type const & i)           { return *(_elem_ptr - i); }
+        pointer             getElemPtr() const { return _elem_ptr; }
+    };
+
+    class  const_reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        pointer  _elem_ptr;
+    public:
+        const_reverse_iterator()                  : _elem_ptr(nullptr)                  { }
+        const_reverse_iterator(pointer elem_ptr)  : _elem_ptr(elem_ptr)                 { }
+        const_reverse_iterator(const const_reverse_iterator& src)                       { *this = src; }
+        const_reverse_iterator(const reverse_iterator& src)                             { *this = src; }
+        virtual ~const_reverse_iterator()                                                     { }
+        const_reverse_iterator & operator=(const_reverse_iterator const & rhs)          {
+            if (this != &rhs)
+                this->_elem_ptr = rhs._elem_ptr;
+            return *this;
+        }
+        const_reverse_iterator & operator=(reverse_iterator const & rhs)                {
+            this->_elem_ptr = rhs.getElemPtr();
+            return *this;
+        }
+
+        bool                    operator==(const const_reverse_iterator& rhs)   const   { return this->_elem_ptr == rhs._elem_ptr; }
+        bool                    operator!=(const const_reverse_iterator& rhs)   const   { return this->_elem_ptr != rhs._elem_ptr; }
+
+        value_type&             operator*()                                     const   { return *_elem_ptr; }
+        value_type*             operator->()                                    const   { return _elem_ptr; }
+
+        const_reverse_iterator& operator++()                                            { _elem_ptr--; return *this; }
+        const_reverse_iterator  operator++(int)                                         { const_reverse_iterator tmp = *this; operator++(); return tmp; }
+        const_reverse_iterator& operator--()                                            { _elem_ptr++; return *this; }
+        const_reverse_iterator  operator--(int)                                         { const_reverse_iterator tmp = *this; operator--(); return tmp; }
+
+        const_reverse_iterator  operator+(difference_type const & rhs)          const   { return const_reverse_iterator(_elem_ptr - rhs); }
+        const_reverse_iterator  operator-(difference_type const & rhs)          const   { return const_reverse_iterator(_elem_ptr + rhs); }
+
+        bool                    operator<(const const_reverse_iterator& rhs)    const   { return this->_elem_ptr > rhs._elem_ptr; }
+        bool                    operator>(const const_reverse_iterator& rhs)    const   { return this->_elem_ptr < rhs._elem_ptr; }
+        bool                    operator<=(const const_reverse_iterator& rhs)   const   { return this->_elem_ptr >= rhs._elem_ptr; }
+        bool                    operator>=(const const_reverse_iterator& rhs)   const   { return this->_elem_ptr <= rhs._elem_ptr; }
+
+        const_reverse_iterator& operator+=(difference_type const & rhs)                 { _elem_ptr -= rhs; return *this; }
+        const_reverse_iterator& operator-=(difference_type const & rhs)                 { _elem_ptr += rhs; return *this; }
+
+        value_type&             operator[](difference_type const & i)                   { return *(_elem_ptr - i); }
+        pointer                 getElemPtr() const { return _elem_ptr; }
+    };
+
 /* Iterators */
     iterator 				begin()             { return iterator(_buffer); }
     const_iterator          begin()     const   { return const_iterator(_buffer); }
     iterator				end()               { return iterator(_buffer + _size);	}
     const_iterator			end()       const   { return const_iterator(_buffer + _size); }
+    reverse_iterator        rbegin()            { return reverse_iterator(_buffer + _size - 1); }
+    const_reverse_iterator  rbegin()    const   { return const_reverse_iterator(_buffer + _size - 1); }
+    reverse_iterator        rend()              { return reverse_iterator(_buffer - 1); }
+    const_reverse_iterator  rend()      const   { return const_reverse_iterator(_buffer - 1); }
 
 /* Capacity */
-    size_type   size()                  const       { return _size; }
-    size_type   capacity()              const       { return _capacity;}
-    void        reserve(size_type n)                {
+    size_type   size()                  const   { return _size; }
+    size_type   capacity()              const   { return _capacity;}
+    void        reserve(size_type n)            {
         if (n <= _capacity)
             return;
         if (_capacity != 0) {
@@ -180,6 +288,16 @@ public:
         if (_size == _capacity)
             reserve(!_capacity ? 1 : _capacity * 2);
         _alloc.construct(_buffer + _size++, val);
+    }
+
+/* Additional functions */
+private:
+    void _clean() {
+        if (_size)
+            for (size_type i = 0; i < _size; i++)
+                _alloc.destroy(_buffer + i);
+        if (_capacity)
+            _alloc.deallocate(_buffer, _capacity);
     }
 };
 
