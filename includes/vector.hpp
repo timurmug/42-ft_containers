@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <memory>
+#include <iostream>
 
 namespace ft {
 
@@ -266,7 +267,17 @@ public:
 
 /* Capacity */
     size_type   size()                  const   { return _size; }
+    size_type   max_size()              const   { return std::numeric_limits<size_type>::max() / sizeof(value_type); }
+    void        resize(size_type n, value_type val = value_type())  {
+        if (n > _size)
+            while (n > _size)
+                push_back(val);
+        else if (n < _size)
+            while (n < _size)
+                _alloc.destroy(_buffer + --_size);
+    }
     size_type   capacity()              const   { return _capacity;}
+    bool        empty()                 const   { return !_size; }
     void        reserve(size_type n)            {
         if (n <= _capacity)
             return;
@@ -283,6 +294,28 @@ public:
         }
     }
 
+/* Element access */
+    reference       operator[] (size_type n)        { return *(_buffer + n); }
+    const_reference operator[] (size_type n) const  { return *(_buffer + n); }
+
+    reference       at (size_type n)                {
+        if (n < _size)
+            return operator[](n);
+        else
+            throw std::out_of_range{"vector"};
+    }
+    const_reference at (size_type n)        const   {
+        if (n < _size)
+            return operator[](n);
+        else
+            throw std::out_of_range{"vector"};
+    }
+
+    reference       front()                         { return *_buffer; }
+    const_reference front()                 const   { return *_buffer; }
+    reference       back()                          { return *(_buffer + _size - 1); }
+    const_reference back()                  const   { return  *(_buffer + _size - 1); }
+
 /* Modifiers */
     void push_back (const value_type& val) {
         if (_size == _capacity)
@@ -290,6 +323,26 @@ public:
         _alloc.construct(_buffer + _size++, val);
     }
 
+    void pop_back() {}
+
+//    single element (1)
+    iterator insert (iterator position, const value_type& val) {
+        (void)position;
+        (void)val;
+    }
+//    fill (2)
+    void insert (iterator position, size_type n, const value_type& val) {
+        (void)position;
+        (void)n;
+        (void)val;
+    }
+//    range (3)
+    template <class InputIterator>
+    void insert (iterator position, InputIterator first, InputIterator last) {
+        (void)position;
+        (void)first;
+        (void)last;
+    }
 /* Additional functions */
 private:
     void _clean() {

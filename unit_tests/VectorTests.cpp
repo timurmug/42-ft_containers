@@ -309,7 +309,7 @@ TEST(Vector_Iterators, const_iterator) {
 
     std_it = std_vector.begin();
     ft_it = ft_vector.begin();
-    for (size_t i = 0; i <= std_vector.size(); i++)
+    for (size_t i = 0; i < std_vector.size(); i++)
         EXPECT_EQ(std_it[i], ft_it[i]);
 }
 
@@ -473,6 +473,192 @@ TEST(Vector_Iterators, const_reverse_iterator) {
         EXPECT_EQ(std_it[i], ft_it[i]);
 }
 
+
+/* Capacity */
+TEST(Vector_Capacity, size) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    EXPECT_EQ(std_vector.size(), ft_vector.size());
+
+    for (int i = 0; i < 10; i++) {
+        std_vector.push_back(i);
+        ft_vector.push_back(i);
+    }
+    EXPECT_EQ(std_vector.size(), ft_vector.size());
+}
+
+TEST(Vector_Capacity, max_size) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    EXPECT_EQ(std_vector.max_size(), ft_vector.max_size());
+
+    std::vector<int> std_vector2(20, 2);
+    ft::vector<int> ft_vector2(20, 2);
+    EXPECT_EQ(std_vector2.max_size(), ft_vector2.max_size());
+
+    std::vector<double> std_vector3(5);
+    ft::vector<double> ft_vector3(5);
+    EXPECT_EQ(std_vector3.max_size(), ft_vector3.max_size());
+}
+
+TEST(Vector_Capacity, resize) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    for (int i = 1;i < 10; i++) {
+        std_vector.push_back(i);
+        ft_vector.push_back(i);
+    }
+
+    std_vector.resize(5);
+    std_vector.resize(8, 100);
+    std_vector.resize(12);
+    std_vector.resize(12);
+    std_vector.resize(11);
+    ft_vector.resize(5);
+    ft_vector.resize(8, 100);
+    ft_vector.resize(12);
+    ft_vector.resize(12);
+    ft_vector.resize(11);
+    checkTwoVectors(std_vector, ft_vector);
+}
+
+TEST(Vector_Capacity, capacity) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    EXPECT_EQ(std_vector.capacity(), ft_vector.capacity());
+
+    std::vector<int> std_vector2(20, 2);
+    ft::vector<int> ft_vector2(20, 2);
+    EXPECT_EQ(std_vector2.capacity(), ft_vector2.capacity());
+
+    std::vector<double> std_vector3(5);
+    ft::vector<double> ft_vector3(5);
+    EXPECT_EQ(std_vector3.capacity(), ft_vector3.capacity());
+}
+
+TEST(Vector_Capacity, empty) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    EXPECT_EQ(std_vector.empty(), ft_vector.empty());
+
+    std_vector.push_back(12);
+    ft_vector.push_back(12);
+    EXPECT_EQ(std_vector.empty(), ft_vector.empty());
+}
+
+TEST(Vector_Capacity, reserve) {
+    std::vector<int>::size_type std_capacity;
+    ft::vector<int>::size_type ft_capacity;
+
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+
+    std_capacity = std_vector.capacity();
+    ft_capacity = ft_vector.capacity();
+    for (int i = 0; i < 100; ++i) {
+        std_vector.push_back(i);
+        ft_vector.push_back(i);
+        if (std_capacity != std_vector.capacity()) {
+            std_capacity = std_vector.capacity();
+        }
+        if (ft_capacity != ft_vector.capacity()) {
+            ft_capacity = ft_vector.capacity();
+        }
+        EXPECT_EQ(std_capacity, ft_capacity);
+    }
+
+    std_vector.reserve(120);
+    ft_vector.reserve(120);
+    EXPECT_EQ(std_vector.capacity(), ft_vector.capacity());
+
+    std_vector.reserve(12);
+    ft_vector.reserve(12);
+    EXPECT_EQ(std_vector.capacity(), ft_vector.capacity());
+}
+
+/* Element access */
+TEST(Vector_Element_acces, operator_) {
+    std::vector<int> std_vector (10);
+    std::vector<int>::size_type sz = std_vector.size();
+    ft::vector<int> ft_vector (10);
+    ft::vector<int>::size_type sz2 = ft_vector.size();
+
+    for (unsigned i = 0; i < sz; i++) {
+        std_vector[i] = i;
+        ft_vector[i] = i;
+    }
+
+    for (unsigned i = 0; i < sz / 2; i++)
+    {
+        int temp;
+        temp = std_vector[sz - 1 - i];
+        std_vector[sz - 1 - i] = std_vector[i];
+        std_vector[i] = temp;
+    }
+    for (unsigned i = 0; i < sz2 / 2; i++)
+    {
+        int temp;
+        temp = ft_vector[sz2 - 1 - i];
+        ft_vector[sz2 - 1 - i] = ft_vector[i];
+        ft_vector[i] = temp;
+    }
+    checkTwoVectors(std_vector, ft_vector);
+}
+
+TEST(Vector_Element_acces, at) {
+    std::vector<int> std_vector (10);
+    ft::vector<int> ft_vector (10);
+
+    std::string result = "";
+    std::string result2 = "";
+
+    try {
+        for (unsigned i = 0; i < 100; i++) {
+            std_vector.at(i) = i;
+        }
+    }
+    catch (std::exception &e) {
+        result = e.what();
+    }
+    ASSERT_THROW(std_vector.at(30), std::out_of_range);
+    try {
+        for (unsigned i = 0; i < 100; i++) {
+            ft_vector.at(i) = i;
+        }
+    }
+    catch (std::exception &e) {
+        result2 = e.what();
+    }
+    ASSERT_THROW(ft_vector.at(30), std::out_of_range);
+    checkTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(result, result2);
+}
+
+TEST(Vector_Element_acces, back_end) {
+    std::vector<int> std_vector;
+    std_vector.push_back(78);
+    std_vector.push_back(16);
+    std_vector.front() -= std_vector.back();
+
+    ft::vector<int> ft_vector;
+    ft_vector.push_back(78);
+    ft_vector.push_back(16);
+    ft_vector.front() -= ft_vector.back();
+
+    EXPECT_EQ(std_vector.front(), ft_vector.front());
+    EXPECT_EQ(std_vector.back(), ft_vector.back());
+
+    std_vector.push_back(10);
+    while (std_vector.back() != 0)
+        std_vector.push_back ( std_vector.back() - 1 );
+    ft_vector.push_back(10);
+    while (ft_vector.back() != 0)
+        ft_vector.push_back ( ft_vector.back() - 1 );
+    EXPECT_EQ(std_vector.front(), ft_vector.front());
+    EXPECT_EQ(std_vector.back(), ft_vector.back());
+
+    checkTwoVectors(std_vector, ft_vector);
+}
 //TEST(Vector_tests, unknown) {
 //    std::string myints2[] = {"asfasd","second","thrid"};
 //    std::vector<std::string> fifth2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
