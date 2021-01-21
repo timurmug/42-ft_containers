@@ -123,7 +123,6 @@ public:
         iterator&           operator-=(difference_type const & rhs)         { _elem_ptr -= rhs; return *this; }
 
         value_type&         operator[](difference_type const & i)           { return *(_elem_ptr + i); }
-        pointer             getElemPtr()                            const   { return _elem_ptr; }
     };
 
     class  const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
@@ -141,7 +140,7 @@ public:
             return *this;
         }
         const_iterator & operator=(iterator const & rhs)                    {
-            this->_elem_ptr = rhs.getElemPtr();
+            this->_elem_ptr = rhs.operator->();
             return *this;
         }
 
@@ -207,7 +206,6 @@ public:
         reverse_iterator&   operator-=(difference_type const & rhs)         { _elem_ptr += rhs; return *this; }
 
         value_type&         operator[](difference_type const & i)           { return *(_elem_ptr - i); }
-        pointer             getElemPtr() const { return _elem_ptr; }
     };
 
     class  const_reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
@@ -225,7 +223,7 @@ public:
             return *this;
         }
         const_reverse_iterator & operator=(reverse_iterator const & rhs)                {
-            this->_elem_ptr = rhs.getElemPtr();
+            this->_elem_ptr = rhs.operator->();
             return *this;
         }
 
@@ -252,7 +250,6 @@ public:
         const_reverse_iterator& operator-=(difference_type const & rhs)                 { _elem_ptr += rhs; return *this; }
 
         value_type&             operator[](difference_type const & i)                   { return *(_elem_ptr - i); }
-        pointer                 getElemPtr() const { return _elem_ptr; }
     };
 
 /* Iterators */
@@ -317,32 +314,123 @@ public:
     const_reference back()                  const   { return  *(_buffer + _size - 1); }
 
 /* Modifiers */
+//    range (1)
+    template <class InputIterator>
+    void assign (InputIterator first, InputIterator last, typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
+        _clean();
+        while (first != last){
+            push_back(*first);
+            first++;
+        }
+    }
+//    fill (2)
+    void assign (size_type n, const value_type& val) {
+        _clean();
+        while (n--)
+            push_back(val);
+    }
+
     void push_back (const value_type& val) {
         if (_size == _capacity)
             reserve(!_capacity ? 1 : _capacity * 2);
         _alloc.construct(_buffer + _size++, val);
     }
 
-    void pop_back() {}
+    void pop_back() {
+        _alloc.destroy(_buffer + _size - 1);
+        _size--;
+    }
 
 //    single element (1)
     iterator insert (iterator position, const value_type& val) {
-        (void)position;
-        (void)val;
+        difference_type offset = position.operator->() - _buffer;
+        if (_size == _capacity) {
+            reserve(!_capacity ? 1 : _capacity * 2);
+        }
+
+        if (_size) {
+            std::memmove(_buffer + offset + 1,
+                         _buffer + offset,
+                         (_size - offset) * sizeof(value_type));
+            _alloc.construct(_buffer + offset, val);
+            _size++;
+            return iterator(_buffer + offset);
+        } else {
+            _alloc.construct(_buffer, val);
+            _size++;
+            return iterator(_buffer);
+        }
     }
 //    fill (2)
     void insert (iterator position, size_type n, const value_type& val) {
-        (void)position;
-        (void)n;
-        (void)val;
+        while (n--)
+            insert(position, val);
     }
 //    range (3)
     template <class InputIterator>
-    void insert (iterator position, InputIterator first, InputIterator last) {
-        (void)position;
-        (void)first;
-        (void)last;
+    void insert (iterator position, InputIterator first, InputIterator last, typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
+        for (; first != last; first++)
+            position =  insert(position, *first) + 1;
     }
+
+    iterator erase (iterator position) {
+        difference_type offset = position.operator->() - _buffer;
+
+//        bool isend = position == end() - 1;
+        _alloc.destroy(position.operator->());
+//        if (position != end() - 1) {
+            std::memmove(_buffer + offset,
+                         _buffer + offset + 1,
+                         (_size - offset) * sizeof(value_type));
+//            pop_back();
+            _size--;
+            return iterator(_buffer + offset);
+//        } else {
+//            _size--;
+//            std::cout << "here" << std::endl;
+//            return _buffer + _size;
+//        }
+
+
+//        value_type * const		pos		= position.operator->();
+//        const difference_type	delta	= pos - _buffer;
+//
+//        _alloc.destroy(pos);
+//        std::memmove(
+//                _buffer + delta,
+//                _buffer + delta + 1,
+//                (_size - delta) * sizeof(value_type)
+//        );
+//        --_size;
+////        return iterator(_buffer + delta);
+//        return ++position;
+    }
+//    iterator erase (iterator first, iterator last);
+
+    void swap (vector& x) {
+        pointer temp = _buffer;
+        _buffer = x._buffer;
+        x._buffer = temp;
+
+        size_type temp_size = _size;
+        _size = x._size;
+        x._size = temp_size;
+
+        size_type temp_cap = _capacity;
+        _capacity = x._capacity;
+        x._capacity = temp_cap;
+
+        allocator_type temp_alloc = _alloc;
+        _alloc = x._alloc;
+        x._alloc = temp_alloc;
+    }
+
+    void clear() {
+        _clean();
+        _size = 0;
+        _capacity = 0;
+    }
+
 /* Additional functions */
 private:
     void _clean() {
@@ -353,6 +441,56 @@ private:
             _alloc.deallocate(_buffer, _capacity);
     }
 };
+
+/* Non-member function overloads */
+    template <class T, class Alloc>
+    bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        typename ft::vector<T, Alloc>::const_iterator lhs_it = lhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator lhs_ite = lhs.end();
+        typename ft::vector<T, Alloc>::const_iterator rhs_it = rhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator rhs_ite = rhs.end();
+        while (lhs_it != lhs_ite) {
+            if (rhs_it == rhs_ite || *lhs_it != *rhs_it)
+                return false;
+            lhs_it++;
+            rhs_it++;
+        }
+        if (rhs_it != rhs_ite)
+            return false;
+        return true;
+    }
+
+    template <class T, class Alloc>
+    bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) { return !(lhs == rhs); }
+
+    template <class T, class Alloc>
+    bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
+        typename ft::vector<T, Alloc>::const_iterator lhs_it = lhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator lhs_ite = lhs.end();
+        typename ft::vector<T, Alloc>::const_iterator rhs_it = rhs.begin();
+        typename ft::vector<T, Alloc>::const_iterator rhs_ite = rhs.end();
+        while (lhs_it != lhs_ite && rhs_it != rhs_ite) {
+            if (*rhs_it < *lhs_it)
+                return false;
+            if (*lhs_it < *rhs_it)
+                return true;
+            rhs_it++;
+            lhs_it++;
+        }
+        return lhs_it == lhs_ite && rhs_it != rhs_ite; // lhs закончился, а rhs нет ?
+    }
+
+    template <class T, class Alloc>
+    bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) { return !(rhs < lhs); }
+
+    template <class T, class Alloc>
+    bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) { return rhs < lhs; }
+
+    template <class T, class Alloc>
+    bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) { return !(lhs < rhs); }
+
+    template <class T, class Alloc>
+    void swap (vector<T,Alloc>& x, vector<T,Alloc>& y) { x.swap(y); }
 
 }
 

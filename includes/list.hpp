@@ -357,6 +357,14 @@ list& operator=(const list& x) {
         size_type temp_size = this->_size;
         this->_size = x._size;
         x._size = temp_size;
+
+        allocator_type temp_alloc = _alloc;
+        _alloc = x._alloc;
+        x._alloc = temp_alloc;
+
+        allocator_rebind_type temp_alloc_rebind = _alloc_rebind;
+        _alloc_rebind = x._alloc_rebind;
+        x._alloc_rebind = temp_alloc_rebind;
     }
 
     void resize (size_type n, value_type val = value_type()) {

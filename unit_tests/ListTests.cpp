@@ -324,6 +324,11 @@ TEST(List_Capacity_And_Element_Access, max_size) {
 
     std::list<double> std_list3(5);
     ft::list<double> ft_list3(5);
+    for (int i=0; i<100; i++) {
+        std_list3.push_back(i);
+        ft_list3.push_back(i);
+    }
+
     ASSERT_EQ(std_list3.max_size(), ft_list3.max_size());
 }
 
@@ -470,6 +475,7 @@ TEST(List_Modifiers, insert) {
 
     std_list.insert (std_it, 2, 'r');
     ft_list.insert(ft_it, 2, 'r');
+    checkTwoLists(std_list, ft_list);
 
     --std_it;
     --ft_it;

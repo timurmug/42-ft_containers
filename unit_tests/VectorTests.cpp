@@ -498,6 +498,10 @@ TEST(Vector_Capacity, max_size) {
 
     std::vector<double> std_vector3(5);
     ft::vector<double> ft_vector3(5);
+    for (int i=0; i<100; i++) {
+        std_vector3.push_back(i);
+        ft_vector3.push_back(i);
+    }
     EXPECT_EQ(std_vector3.max_size(), ft_vector3.max_size());
 }
 
@@ -533,6 +537,10 @@ TEST(Vector_Capacity, capacity) {
 
     std::vector<double> std_vector3(5);
     ft::vector<double> ft_vector3(5);
+    for (int i=0; i<100; i++) {
+        std_vector3.push_back(i);
+        ft_vector3.push_back(i);
+    }
     EXPECT_EQ(std_vector3.capacity(), ft_vector3.capacity());
 }
 
@@ -575,6 +583,7 @@ TEST(Vector_Capacity, reserve) {
     ft_vector.reserve(12);
     EXPECT_EQ(std_vector.capacity(), ft_vector.capacity());
 }
+
 
 /* Element access */
 TEST(Vector_Element_acces, operator_) {
@@ -659,16 +668,279 @@ TEST(Vector_Element_acces, back_end) {
 
     checkTwoVectors(std_vector, ft_vector);
 }
-//TEST(Vector_tests, unknown) {
-//    std::string myints2[] = {"asfasd","second","thrid"};
-//    std::vector<std::string> fifth2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
-//    for (size_t i = 0 ; i < fifth2.size(); i++)
-//        std::cout << fifth2[i] << " ";
-//    std::cout << std::endl;
-//    std::string *pointer = &fifth2[0];
-//    pointer++;
-//    pointer++;
-//    pointer--;
-//    std::cout << *pointer << " ";
-//    FAIL();
-//}
+
+
+/* Modifiers */
+TEST(Vector_Modifiers, assign) {
+    std::vector<int> std_first;
+    std::vector<int> std_second;
+    std::vector<int> std_third;
+
+    std_first.assign (7, 100);
+
+    std::vector<int>::iterator std_it;
+    std_it= std_first.begin() + 1;
+
+    std_second.assign (std_it, std_first.end() - 1);
+
+    int myints[] = { 1776, 7, 4};
+    std_third.assign (myints, myints + 3);
+
+    ft::vector<int> ft_first;
+    ft::vector<int> ft_second;
+    ft::vector<int> ft_third;
+
+    ft_first.assign (7, 100);
+
+    ft::vector<int>::iterator ft_it;
+    ft_it = ft_first.begin() + 1;
+
+    ft_second.assign (ft_it, ft_first.end() - 1);
+
+    ft_third.assign (myints, myints + 3);
+
+    checkTwoVectors(std_first, ft_first);
+    checkTwoVectors(std_second, ft_second);
+    checkTwoVectors(std_third, ft_third);
+}
+
+TEST(Vector_Modifiers, push_back) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+    for (int i = 0; i < 100; i++){
+        std_vector.push_back (i);
+        ft_vector.push_back (i);
+    }
+    checkTwoVectors(std_vector, ft_vector);
+
+    std::vector<std::string> std_vector2;
+    ft::vector<std::string> ft_vector2;
+    std_vector2.push_back("first");
+    std_vector2.push_back("second");
+    std_vector2.push_back("123");
+    std_vector2.push_back("567");
+    ft_vector2.push_back("first");
+    ft_vector2.push_back("second");
+    ft_vector2.push_back("123");
+    ft_vector2.push_back("567");
+    checkTwoVectors(std_vector2, ft_vector2);
+}
+
+TEST(Vector_Modifiers, pop_back) {
+    std::vector<int> std_vector(1, 4);
+    ft::vector<int> ft_vector(1, 4);
+    int sum (0);
+    int sum2 (0);
+
+    sum += std_vector.back();
+    sum2 += ft_vector.back();
+    std_vector.pop_back();
+    ft_vector.pop_back();
+    std_vector.push_back (100);
+    std_vector.push_back (200);
+    std_vector.push_back (300);
+    ft_vector.push_back (100);
+    ft_vector.push_back (200);
+    ft_vector.push_back (300);
+
+    while (!std_vector.empty() && !ft_vector.empty())
+    {
+        sum += std_vector.back();
+        sum2 += ft_vector.back();
+        std_vector.pop_back();
+        ft_vector.pop_back();
+    }
+    EXPECT_EQ(std_vector.empty(), ft_vector.empty());
+    checkTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(sum, sum2);
+}
+
+TEST(Vector_Modifiers, insert) {
+    int array[] = {1, 2, 3, 4 };
+    std::vector<int> std_vector(array, array + sizeof(array) / sizeof(int));
+    ft::vector<int> ft_vector(array, array + sizeof(array) / sizeof(int));
+    EXPECT_EQ(*std_vector.insert(std_vector.begin() + 2, 12),
+              *ft_vector.insert(ft_vector.begin() + 2, 12));
+    checkTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(*std_vector.insert(std_vector.end(), 14),
+              *ft_vector.insert(ft_vector.end(), 14));
+    checkTwoVectors(std_vector, ft_vector);
+
+    std::vector<int> std_vector2;
+    ft::vector<int> ft_vector2;
+    EXPECT_EQ(*std_vector2.insert(std_vector2.begin(), 12),
+              *ft_vector2.insert(ft_vector2.begin(), 12));
+    checkTwoVectors(std_vector2, ft_vector2);
+
+    EXPECT_EQ(*std_vector2.insert(std_vector2.begin(), 13),
+              *ft_vector2.insert(ft_vector2.begin(), 13));
+    checkTwoVectors(std_vector2, ft_vector2);
+
+    std::vector<int> std_vector3 (3, 100);
+    std::vector<int>::iterator std_it;
+    std_it = std_vector3.begin();
+    std_it = std_vector3.insert (std_it , 200 );
+
+    ft::vector<int> ft_vector3 (3, 100);
+    ft::vector<int>::iterator ft_it;
+    ft_it = ft_vector3.begin();
+    ft_it = ft_vector3.insert (ft_it , 200 );
+
+    std_vector3.insert (std_it, 2, 300);
+    ft_vector3.insert (ft_it, 2, 300);
+    checkTwoVectors(std_vector3, ft_vector3);
+
+    std_it = std_vector3.begin();
+    ft_it = ft_vector3.begin();
+    EXPECT_EQ(*std_it, *ft_it);
+
+    std::vector<int> anothervector (2,400);
+    ft::vector<int> anothervector2 (2,400);
+    checkTwoVectors(anothervector, anothervector2);
+    std_vector3.insert (std_it + 2, anothervector.begin(), anothervector.end());
+    ft_vector3.insert (ft_it + 2, anothervector2.begin(), anothervector2.end());
+    checkTwoVectors(std_vector3, ft_vector3);
+
+    int myarray [] = { 501,502,503 };
+    std_vector3.insert (std_vector3.begin(), myarray, myarray + 3);
+    ft_vector3.insert (ft_vector3.begin(), myarray, myarray + 3);
+    checkTwoVectors(std_vector3, ft_vector3);
+}
+
+TEST(Vector_Modifiers, erase) {
+    std::vector<int> std_vector;
+    ft::vector<int> ft_vector;
+
+    for (int i = 1; i <= 12; i++) {
+        std_vector.push_back(i);
+        ft_vector.push_back(i);
+    }
+
+    EXPECT_EQ(*std_vector.erase (std_vector.begin() + 5),
+              *ft_vector.erase(ft_vector.begin() + 5));
+    checkTwoVectors(std_vector, ft_vector);
+
+    EXPECT_EQ(*std_vector.erase (std_vector.begin() + 3),
+              *ft_vector.erase(ft_vector.begin() + 3));
+    checkTwoVectors(std_vector, ft_vector);
+
+    EXPECT_EQ(*std_vector.erase (std_vector.begin()),
+              *ft_vector.erase(ft_vector.begin()));
+    checkTwoVectors(std_vector, ft_vector);
+
+    EXPECT_EQ(*(std_vector.end() - 5), *(ft_vector.end() - 5));
+    EXPECT_EQ(*std_vector.erase (std_vector.end() - 1),
+              *ft_vector.erase(ft_vector.end() - 1));
+//    checkTwoVectors(std_vector, ft_vector);
+    printTwoVectors(std_vector, ft_vector);
+
+}
+
+TEST(Vector_Modifiers, swap) {
+    std::vector<int> foo (3,100);
+    std::vector<int> bar (5,200);
+    foo.swap(bar);
+
+    ft::vector<int> foo2 (3,100);
+    ft::vector<int> bar2 (5,200);
+    foo2.swap(bar2);
+
+    checkTwoVectors(foo, foo2);
+    checkTwoVectors(bar, bar2);
+}
+
+TEST(Vector_Modifiers, clear) {
+    std::vector<int> std_vector;
+    std_vector.push_back (100);
+    std_vector.push_back (200);
+    std_vector.push_back (300);
+
+    ft::vector<int> ft_vector;
+    ft_vector.push_back (100);
+    ft_vector.push_back (200);
+    ft_vector.push_back (300);
+
+    checkTwoVectors(std_vector, ft_vector);
+
+    std_vector.clear();
+    std_vector.push_back (1101);
+    std_vector.push_back (2202);
+
+    ft_vector.clear();
+    ft_vector.push_back (1101);
+    ft_vector.push_back (2202);
+
+    checkTwoVectors(std_vector, ft_vector);
+}
+
+
+/* Non-member function overloads */
+TEST(Vector_NonMember_Fuction_Overloads, relational_operators) {
+    int std_ints[] = {10, 20, 30};
+    std::vector<int> a(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    std::vector<int> b(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    int std_ints2[] = {10, 20};
+    std::vector<int> c(std_ints2, std_ints2 + sizeof(std_ints2) / sizeof(int) );
+
+    int ft_ints[] = {10, 20, 30};
+    ft::vector<int> a2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int) );
+    ft::vector<int> b2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int));
+    int ft_ints2[] = {10, 20};
+    ft::vector<int> c2(ft_ints2, ft_ints2 + sizeof(ft_ints2) / sizeof(int));
+
+    EXPECT_EQ(a == b, a2 == b2);
+    EXPECT_EQ(b != c, b2 != c2);
+    EXPECT_EQ(b < c, b2 < c2);
+    EXPECT_EQ(c > b, c2 > b2);
+    EXPECT_EQ(a <= b, a2 <= b2);
+    EXPECT_EQ(a >= b, a2 >= b2);
+}
+
+TEST(Vector_NonMember_Fuction_Overloads, swap) {
+    std::vector<int> foo (3,100);
+    std::vector<int> bar (5,200);
+    std::swap(foo, bar);
+
+    ft::vector<int> foo2 (3,100);
+    ft::vector<int> bar2 (5,200);
+    ft::swap(foo2,bar2);
+
+    checkTwoVectors(foo, foo2);
+    checkTwoVectors(bar, bar2);
+}
+
+TEST(Vector_Template_specializations, Template_specializations) {
+//    bool array[] = { true, false, false, true, true };
+//    std::vector<bool> std_vector(array, array + sizeof(array)/sizeof(bool));
+//
+//    std::vector<bool> std_vector2;
+//    printTwoVectors(std_vector, std_vector2);
+//
+//    std::vector<bool> std_vector3(4);
+//    std::vector<bool> std_vector4(4, "abc");
+//    printTwoVectors(std_vector3, std_vector4);
+//
+//    ft::vector<bool> ft_vector(4, "abc");
+//    printTwoVectors(ft_vector, ft_vector);
+
+//    std::vector<bool>::const_reference smth = true;
+//    (void)snth;
+    FAIL();
+}
+
+TEST(Vector_tests, base_test) {
+    std::string myints2[] = {"asfasd","second","thrid"};
+    std::vector<std::string> std_vector (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
+    std::vector<std::string> ft_vector (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
+
+    std::string *pointer = &std_vector[0];
+    pointer++;
+    pointer++;
+    pointer--;
+    std::string *pointer2 = &ft_vector[0];
+    pointer2++;
+    pointer2++;
+    pointer2--;
+
+    EXPECT_EQ(*pointer, *pointer2);
+}
