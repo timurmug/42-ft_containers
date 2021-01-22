@@ -44,11 +44,13 @@ public:
 //    fill (2)
     explicit vector (size_type n, const value_type& val = value_type(),
                      const allocator_type& alloc = allocator_type())  : _alloc(alloc), _size(n), _buffer(nullptr) {
-        _capacity = !n ? 0 : n;
-        _buffer = _alloc.allocate(_capacity);
-        value_type *buffer_p = _buffer;
-        while (n--)
-            _alloc.construct(buffer_p++, val);
+        if (n) {
+            _capacity = n;
+            _buffer = _alloc.allocate(_capacity);
+            value_type *buffer_p = _buffer;
+            while (n--)
+                _alloc.construct(buffer_p++, val);
+        }
     }
 //    range (3)
     template <class InputIterator>
