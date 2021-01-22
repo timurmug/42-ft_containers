@@ -85,7 +85,6 @@ list& operator=(const list& x) {
 
 /* Destructor */
 	~list() {
-		// std::cout << "delete" << std::endl;
 		_deleteAllNotes();
 	}
 

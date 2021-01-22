@@ -612,6 +612,21 @@ TEST(Vector_Element_acces, operator_) {
         ft_vector[i] = temp;
     }
     checkTwoVectors(std_vector, ft_vector);
+
+    std::string myints2[] = {"asfasd","second","thrid"};
+    std::vector<std::string> std_vector2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
+    std::vector<std::string> ft_vector2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
+
+    std::string *pointer = &std_vector2[0];
+    pointer++;
+    pointer++;
+    pointer--;
+    std::string *pointer2 = &ft_vector2[0];
+    pointer2++;
+    pointer2++;
+    pointer2--;
+
+    EXPECT_EQ(*pointer, *pointer2);
 }
 
 TEST(Vector_Element_acces, at) {
@@ -828,12 +843,14 @@ TEST(Vector_Modifiers, erase) {
               *ft_vector.erase(ft_vector.begin()));
     checkTwoVectors(std_vector, ft_vector);
 
-    EXPECT_EQ(*(std_vector.end() - 5), *(ft_vector.end() - 5));
-    EXPECT_EQ(*std_vector.erase (std_vector.end() - 1),
-              *ft_vector.erase(ft_vector.end() - 1));
-//    checkTwoVectors(std_vector, ft_vector);
-    printTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(*std_vector.erase (std_vector.end() - 2),
+              *ft_vector.erase(ft_vector.end() - 2));
+    checkTwoVectors(std_vector, ft_vector);
 
+    printTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(*std_vector.erase (std_vector.begin(), std_vector.begin() + 6),
+              *ft_vector.erase (ft_vector.begin(), ft_vector.begin() + 6));
+    checkTwoVectors(std_vector, ft_vector);
 }
 
 TEST(Vector_Modifiers, swap) {
@@ -907,40 +924,4 @@ TEST(Vector_NonMember_Fuction_Overloads, swap) {
 
     checkTwoVectors(foo, foo2);
     checkTwoVectors(bar, bar2);
-}
-
-TEST(Vector_Template_specializations, Template_specializations) {
-//    bool array[] = { true, false, false, true, true };
-//    std::vector<bool> std_vector(array, array + sizeof(array)/sizeof(bool));
-//
-//    std::vector<bool> std_vector2;
-//    printTwoVectors(std_vector, std_vector2);
-//
-//    std::vector<bool> std_vector3(4);
-//    std::vector<bool> std_vector4(4, "abc");
-//    printTwoVectors(std_vector3, std_vector4);
-//
-//    ft::vector<bool> ft_vector(4, "abc");
-//    printTwoVectors(ft_vector, ft_vector);
-
-//    std::vector<bool>::const_reference smth = true;
-//    (void)snth;
-    FAIL();
-}
-
-TEST(Vector_tests, base_test) {
-    std::string myints2[] = {"asfasd","second","thrid"};
-    std::vector<std::string> std_vector (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
-    std::vector<std::string> ft_vector (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
-
-    std::string *pointer = &std_vector[0];
-    pointer++;
-    pointer++;
-    pointer--;
-    std::string *pointer2 = &ft_vector[0];
-    pointer2++;
-    pointer2++;
-    pointer2--;
-
-    EXPECT_EQ(*pointer, *pointer2);
 }

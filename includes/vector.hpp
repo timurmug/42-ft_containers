@@ -2,7 +2,6 @@
 #define VECTOR_HPP
 
 #include <memory>
-#include <iostream>
 
 namespace ft {
 
@@ -376,36 +375,27 @@ public:
     iterator erase (iterator position) {
         difference_type offset = position.operator->() - _buffer;
 
-//        bool isend = position == end() - 1;
-        _alloc.destroy(position.operator->());
-//        if (position != end() - 1) {
-            std::memmove(_buffer + offset,
-                         _buffer + offset + 1,
-                         (_size - offset) * sizeof(value_type));
-//            pop_back();
-            _size--;
-            return iterator(_buffer + offset);
-//        } else {
-//            _size--;
-//            std::cout << "here" << std::endl;
-//            return _buffer + _size;
-//        }
-
-
-//        value_type * const		pos		= position.operator->();
-//        const difference_type	delta	= pos - _buffer;
-//
-//        _alloc.destroy(pos);
-//        std::memmove(
-//                _buffer + delta,
-//                _buffer + delta + 1,
-//                (_size - delta) * sizeof(value_type)
-//        );
-//        --_size;
-////        return iterator(_buffer + delta);
-//        return ++position;
+        _alloc.destroy(_buffer + offset);
+        std::memmove(_buffer + offset,
+                     _buffer + offset + 1,
+                     (_size - offset) * sizeof(value_type));
+        _size--;
+        return iterator(_buffer + offset);
     }
-//    iterator erase (iterator first, iterator last);
+    iterator erase (iterator first, iterator last) {
+        difference_type offset_first = first.operator->() - _buffer;
+        difference_type offset_last = last.operator->() - _buffer;
+
+        for (difference_type i = offset_first; i < offset_last; i++) {
+            _alloc.destroy(_buffer + i);
+            _size--;
+        }
+        std::memmove(_buffer + offset_first,
+                     _buffer + offset_last,
+                     (offset_last - offset_first) * sizeof(value_type));
+        return iterator(last);
+
+    }
 
     void swap (vector& x) {
         pointer temp = _buffer;
