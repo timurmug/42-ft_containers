@@ -525,6 +525,11 @@ TEST(Vector_Capacity, resize) {
     ft_vector.resize(12);
     ft_vector.resize(11);
     checkTwoVectors(std_vector, ft_vector);
+
+    std_vector.resize(0);
+    ft_vector.resize(0);
+    checkTwoVectors(std_vector, ft_vector);
+    EXPECT_EQ(std_vector.empty(), ft_vector.empty());
 }
 
 TEST(Vector_Capacity, capacity) {
@@ -616,7 +621,7 @@ TEST(Vector_Element_acces, operator_) {
 
     std::string myints2[] = {"asfasd","second","thrid"};
     std::vector<std::string> std_vector2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
-    std::vector<std::string> ft_vector2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
+    ft::vector<std::string> ft_vector2 (myints2, myints2 + sizeof(myints2) / sizeof(std::string) );
 
     std::string *pointer = &std_vector2[0];
     pointer++;
@@ -659,7 +664,7 @@ TEST(Vector_Element_acces, at) {
     EXPECT_EQ(result, result2);
 }
 
-TEST(Vector_Element_acces, back_end) {
+TEST(Vector_Element_acces, front_back) {
     std::vector<int> std_vector;
     std_vector.push_back(78);
     std_vector.push_back(16);
@@ -848,7 +853,6 @@ TEST(Vector_Modifiers, erase) {
               *ft_vector.erase(ft_vector.end() - 2));
     checkTwoVectors(std_vector, ft_vector);
 
-    printTwoVectors(std_vector, ft_vector);
     EXPECT_EQ(*std_vector.erase (std_vector.begin(), std_vector.begin() + 6),
               *ft_vector.erase (ft_vector.begin(), ft_vector.begin() + 6));
     checkTwoVectors(std_vector, ft_vector);
