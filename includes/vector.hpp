@@ -30,8 +30,6 @@ public:
 
 private:
 /* Local variables */
-//    typedef typename allocator_type::template rebind<value_type>::other allocator_rebind_type;
-//    allocator_rebind_type 	_alloc_rebind;
     allocator_type          _alloc;
     size_type				_size;
     size_type				_capacity;
@@ -56,7 +54,6 @@ public:
     template <class InputIterator>
     vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
             typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) : _alloc(alloc), _size(0), _capacity(0), _buffer(nullptr) {
-//        _buffer = _alloc.allocate(1);
         while (first != last){
             this->push_back(*first);
             first++;

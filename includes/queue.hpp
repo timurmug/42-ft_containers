@@ -35,7 +35,6 @@ public:
 };
 
 /* relational operators */
-
     template <class T, class Container>
     bool operator!= (const queue<T,Container>& lhs, const queue<T,Container>& rhs) { return !(operator==(lhs, rhs)); }
 

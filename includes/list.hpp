@@ -592,19 +592,8 @@ private:
 
 	void _deleteAllNotes() {
         clear();
-		// while (_beginNode != _endNode) {
-		// 	t_node	*begin = _beginNode;
-		// 	_beginNode = _beginNode->next;
-		// 	_alloc.destroy(begin->data);
-		// 	_alloc.deallocate(begin->data, 1);
-		// 	// begin->data = nullptr;
-		// 	_alloc_rebind.destroy(begin);
-		// 	_alloc_rebind.deallocate(begin, 1);
-		// 	// begin = nullptr;
-		// }
 		_alloc.deallocate(_endNode->data, 1);
 		_alloc_rebind.deallocate(_endNode, 1);
-		// _endNode = nullptr;
 	}
 
 	void _swapNodesValues(t_node *first, t_node *second) {
