@@ -2,7 +2,6 @@
 #define DEQUE_HPP
 
 #include <memory>
-#include <iostream>
 
 namespace ft {
 
@@ -320,8 +319,7 @@ public:
     }
 
     void push_front (const value_type& val) {
-//        pointer new_buffer = _buffer - 1;
-        (void)val;
+        insert(begin(), val);
     }
 
     void pop_back() {
@@ -330,14 +328,7 @@ public:
     }
 
     void pop_front() {
-        difference_type offset = (_buffer + 1) - _buffer;
-        std::cout << offset << std::endl;
-//        size_type i = 0;
-        _alloc.destroy(_buffer);
-        _alloc.deallocate(_buffer, 1);
-        _size--;
-        _capacity--;
-        _buffer++;
+        erase(begin());
     }
 
     //    single element (1)

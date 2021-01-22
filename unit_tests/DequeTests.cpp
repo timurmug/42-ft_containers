@@ -697,7 +697,22 @@ TEST(Deque_Modifiers, push_back) {
 }
 
 TEST(Deque_Modifiers, push_front) {
-    FAIL();
+    std::deque<int> a (2, 100);
+    a.push_front (200);
+    a.push_front (300);
+    ft::deque<int> b (2, 100);
+    b.push_front (200);
+    b.push_front (300);
+    checkTwoDeque(a, b);
+
+    std::deque<char> a2;
+    a2.push_front ('a');
+    a2.push_front ('b');
+    ft::deque<char> b2;
+    b2.push_front ('a');
+    b2.push_front ('b');
+    checkTwoDeque(a2, b2);
+    printTwoDeque(a2, b2);
 }
 
 TEST(Deque_Modifiers, pop_back) {
@@ -731,28 +746,24 @@ TEST(Deque_Modifiers, pop_back) {
 
 TEST(Deque_Modifiers, pop_front) {
     std::deque<int> *a = new std::deque<int>();
-//    ft::deque<int> *b = new ft::deque<int>();
+    ft::deque<int> *b = new ft::deque<int>();
 
-//    a->push_back (100);
-//    a->push_back (200);
-//    a->push_back (300);
-//    b->push_back (100);
-//    b->push_back (200);
-//    b->push_back (300);
+    a->push_back (100);
+    a->push_back (200);
+    a->push_back (300);
 
-//    while (!a->empty() && !b->empty())
-//    {
-//        EXPECT_EQ(a->front(), b->front());
+    b->push_back (100);
+    b->push_back (200);
+    b->push_back (300);
+
+    while (!a->empty() && !b->empty()) {
+        EXPECT_EQ(a->front(), b->front());
         a->pop_front();
-//        b->pop_front();
-//        checkTwoDeque(*a, *b);
-//        printTwoDeque(*a, *b);
-//    }
-//    EXPECT_EQ(a->empty(), b->empty());
-//    checkTwoDeque(*a, *b);
-
+        b->pop_front();
+    }
     delete a;
-//    delete b;
+    delete b;
+
 }
 
 TEST(Deque_Modifiers, insert) {
@@ -794,11 +805,11 @@ TEST(Deque_Modifiers, insert) {
     ft_it = b3.begin();
     EXPECT_EQ(*std_it, *ft_it);
 
-    std::deque<int> anothervector (2,400);
-    ft::deque<int> anothervector2 (2,400);
-    checkTwoDeque(anothervector, anothervector2);
-    a3.insert (std_it + 2, anothervector.begin(), anothervector.end());
-    b3.insert (ft_it + 2, anothervector2.begin(), anothervector2.end());
+    std::deque<int> anotherdeaue (2, 400);
+    ft::deque<int> anotherdeque (2, 400);
+    checkTwoDeque(anotherdeaue, anotherdeque);
+    a3.insert (std_it + 2, anotherdeaue.begin(), anotherdeaue.end());
+    b3.insert (ft_it + 2, anotherdeque.begin(), anotherdeque.end());
     checkTwoDeque(a3, b3);
 
     int myarray [] = { 501,502,503 };
@@ -878,10 +889,10 @@ TEST(Deque_Modifiers, clear) {
 /* Non-member function overloads */
 TEST(Deque_NonMember_Fuction_Overloads, relational_operators) {
     int std_ints[] = {10, 20, 30};
-    std::vector<int> a(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
-    std::vector<int> b(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    std::deque<int> a(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
+    std::deque<int> b(std_ints, std_ints + sizeof(std_ints) / sizeof(int) );
     int std_ints2[] = {10, 20};
-    std::vector<int> c(std_ints2, std_ints2 + sizeof(std_ints2) / sizeof(int) );
+    std::deque<int> c(std_ints2, std_ints2 + sizeof(std_ints2) / sizeof(int) );
 
     int ft_ints[] = {10, 20, 30};
     ft::deque<int> a2(ft_ints, ft_ints + sizeof(ft_ints) / sizeof(int) );
