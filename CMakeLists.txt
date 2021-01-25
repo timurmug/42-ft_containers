@@ -11,7 +11,7 @@ set(SRCS    unit_tests/ListTests.cpp
             unit_tests/StackTests.cpp
             unit_tests/QueueTests.cpp
             unit_tests/VectorTests.cpp
-            unit_tests/DequeTests.cpp)
+            unit_tests/DequeTests.cpp unit_tests/MapTests.cpp)
 #set(SRCS unit_tests/VectorTests.cpp)
 
 add_executable(UnitTests ${SRCS})
