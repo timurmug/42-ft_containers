@@ -2,6 +2,7 @@
 #define MAP_HPP
 
 #include <memory>
+#include "stack.hpp"
 
 template<bool Cond, class T = void>
 struct enable_if {};
@@ -9,8 +10,6 @@ template<class T>
 struct enable_if<true, T> { typedef T type; };
 
 namespace ft {
-
-
 
 template < class Key,                                               // map::key_type
         class T,                                                    // map::mapped_type
@@ -72,20 +71,19 @@ private:
     t_node                  *_rootNode;
     size_type				_size;
     key_compare             _compare;
-    size_type				_blacksHeight;
 
 public:
 /* Constructors */
 //    empty (1)
     explicit map (const key_compare& comp = key_compare(),
-                  const allocator_type& alloc = allocator_type()) :  _alloc(alloc), _size(0), _compare(comp), _blacksHeight(0)  {
+                  const allocator_type& alloc = allocator_type()) :  _alloc(alloc), _size(0), _compare(comp) {
 //        _initBeginNode();
     }
 //    range (2)
     template <class InputIterator>
     map (InputIterator first, InputIterator last,
          const key_compare& comp = key_compare(),
-         const allocator_type& alloc = allocator_type()) : _alloc(alloc), _size(0), _compare(comp), _blacksHeight(0) {
+         const allocator_type& alloc = allocator_type()) : _alloc(alloc), _size(0), _compare(comp) {
         (void)first;
         (void)last;
     }
@@ -99,9 +97,50 @@ public:
     class iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node   *_node_ptr;
+//        stack<t_node> stack;
+        t_node *_getMinNode(t_node *node)  {
+            if (node->left == nullptr)
+                return node;
+            return _getMinNode(node->left);
+        }
+
+        t_node *_mapIteratorNext(t_node *node)  {
+            if (node->right)
+                return _getMinNode(node->right);
+            if (node->parent && node->parent->left == node)
+                return node->parent;
+            t_node *tmp = node;
+            do {
+                tmp = tmp->parent;
+                if (tmp == nullptr)
+                    return node->right;
+            } while (tmp->parent->right == tmp);
+            return tmp->parent;
+        }
+        t_node * _Rb_tree_increment(t_node *node)
+        {
+            if (node->right != 0)
+            {
+                node = node->right;
+                while (node->right != 0)
+                    node = node->left;
+            }
+            else
+            {
+                t_node* temp = node->parent;
+                while (node == temp->right)
+                {
+                    node = temp;
+                    temp = temp->parent;
+                }
+                if (node->right != temp)
+                    node = temp;
+            }
+            return node;
+        }
     public:
-        iterator() : _node_ptr(NULL) { }
-        iterator(t_node* node_ptr) : _node_ptr(node_ptr) { }
+        iterator() : _node_ptr(NULL) {  }
+        iterator(t_node* node_ptr) : _node_ptr(node_ptr) {  }
         iterator(const iterator& src) { *this = src; }
         virtual ~iterator() { }
 
@@ -112,12 +151,41 @@ public:
         }
 
         bool operator==(const iterator& rhs) const { return this->_node_ptr == rhs._node_ptr; }
-        bool operator!=(const iterator& rhs) const { return this->_node_ptr != rhs._node_ptr; }
+        bool operator!=(const iterator& rhs) const {
+//            if (!rhs._node_ptr && !this->_node_ptr)
+//                return true;
+            return this->_node_ptr != rhs._node_ptr;
+        }
 
         value_type& operator*() const { return *this->_node_ptr->key_value; }
         value_type * operator->() const { return this->_node_ptr->key_value; }
 
-        iterator& operator++() { this->_node_ptr = this->_node_ptr->next; return *this; }
+        iterator& operator++() {
+//            this->_node_ptr = this->_node_ptr->next;
+//            stack<t_node> stack;
+
+//            if(_node_ptr)
+//            {
+//                if(_node_ptr->right)
+//                {
+//                    stack.push(*_node_ptr->right);
+//                }
+//
+//                if(_node_ptr->left)
+//                {
+//                    _node_ptr = _node_ptr->left;
+//                }
+//                else
+//                {
+//                    _node_ptr = &stack.top();
+//                    stack.pop();
+//                }
+//            }
+
+//            this->_node_ptr = _mapIteratorNext(this->_node_ptr);
+            this->_node_ptr = _Rb_tree_increment(this->_node_ptr);
+            return *this;
+        }
         iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
         iterator& operator--() { this->_node_ptr = this->_node_ptr->prev; return *this; }
         iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
@@ -125,6 +193,11 @@ public:
 //        t_node *getNodePtr() const { return _node_ptr; }
     };
 
+/* Iterators */
+    iterator 				begin()             { return iterator(_minNode); }
+//    const_iterator 		    begin()     const   { return const_iterator(_beginNode); }
+    iterator				end()               { return iterator(_maxNode->right);	}
+//    const_iterator			end()       const   { return const_iterator(_endNode); }
 
 /* Capacity */
     bool        empty()     const { return (this->_size == 0); }
@@ -137,24 +210,25 @@ public:
     std::pair<iterator, bool> insert (const value_type& val) {
         t_node *newNode = nullptr;
 
-        if (!_size) {                                                       // случай 1 - вставляем в корень
+        if (!_size) {                                                           // случай 1 - вставляем в корень
             newNode = _initRoot(val);
             return std::pair<iterator, bool>(iterator(newNode), true);
         }
 
-        t_node *p;
-        bool rightOrEqual = _find(val, &p);
-        if (rightOrEqual && p->key_value->first == val.first)               // элемент уже есть
-            return std::pair<iterator, bool>(iterator(p), false);
+        t_node *parent;
+        bool rightOrEqual = _searchWhereToInsert(val, &parent);
+        if (rightOrEqual && parent->key_value->first == val.first)               // элемент уже есть
+            return std::pair<iterator, bool>(iterator(parent), false);
 
-        if (p->color == BLACK) {                                            // случай 2 - предок черный
-            newNode = _insertAfterNode(p, rightOrEqual, val);
+        newNode = _insertAfterNode(parent, rightOrEqual, val);
+        if (parent->color == BLACK) {                                            // случай 2 - предок черный
+//            newNode = _insertAfterNode(parent, rightOrEqual, val);
             return std::pair<iterator, bool>(iterator(newNode), true);
         }
 
         // остальные случаи проваливаются сюда из-за возможной рекурсии
-//        newNode = _newNode(val, nullptr, nullptr, nullptr);
-//        insert_case3(newNode);
+//        newNode = _newNode(val, parent, nullptr, nullptr);
+        _changesAfterInsert_case3(newNode);
         return std::pair<iterator, bool>(iterator(newNode), true);
     }
 //    with hint (2)
@@ -166,36 +240,73 @@ public:
 
 /* Additional functions */
 private:
-    void insert_case1(t_node *node)
+    void _changesAfterInsert_case1(t_node *node)
     {
+        // если корень, то цвет должен быть черным
         if (node->parent == NULL)
             node->color = BLACK;
         else
-            insert_case2(node);
+            _changesAfterInsert_case2(node);
     }
 
-//    void insert_case2(t_node *node)
-//    {
-//        if (node->parent->color == BLACK)
-//            return;
-//        else
-//            insert_case3(node);
-//    }
+    void _changesAfterInsert_case2(t_node *node)
+    {
+        // если предок черный, то все норм
+        if (node->parent->color == BLACK)
+            return;
+        else
+            _changesAfterInsert_case3(node);
+    }
 
-    void insert_case3(t_node *node) {
+    void _changesAfterInsert_case3(t_node *node) {
         t_node *uncleNode = _getUncle(node);
         t_node *grandparent;
 
-        // если дядя тоже красный (родитель уже красный)
+        // если родитель и дядя красные
         if (uncleNode && uncleNode->color == RED) {
             node->parent->color = BLACK;
             uncleNode->color = BLACK;
             grandparent = _getGrandparent(node);
             grandparent->color = RED;
-            insert_case1(node);
+            _changesAfterInsert_case1(grandparent);
         }
         else
-            insert_case4(node);
+            _changesAfterInsert_case4(node);
+    }
+
+    void _changesAfterInsert_case4(t_node *node)
+    {
+        //сюда программа проваливается, если родитель красный, а дядя черный
+        t_node *grandparent = _getGrandparent(node);
+
+        // если нода справа от родителя и родитель слева от дедушки
+        if ((node == node->parent->right) && (node->parent == grandparent->left)) {
+            _rotate_left(node->parent);
+            node = node->left;
+        }
+        // если нода слева от родителя и родитель справа от дедушки
+        else if ((node == node->parent->left) && (node->parent == grandparent->right)) {
+            _rotate_right(node->parent);
+            node = node->right;
+        }
+        _changesAfterInsert_case5(node);
+    }
+
+    void _changesAfterInsert_case5(t_node *node)
+    {
+        /* Родитель P является красным, но дядя U — чёрный, текущий узел N — левый потомок P и P — левый потомок G.
+        В этом случае выполняется поворот дерева на G. В результате получается дерево, в котором бывший родитель P
+        теперь является родителем и текущего узла N и бывшего дедушки G. Известно, что G — чёрный, так как его бывший
+        потомок P не мог бы в противном случае быть красным (без нарушения Свойства 4). Тогда цвета P и G меняются и
+        в результате дерево удовлетворяет Свойству 4 (Оба потомка любого красного узла — чёрные). */
+        t_node *grandparent = _getGrandparent(node);
+
+        node->parent->color = BLACK;
+        grandparent->color = RED;
+        if ((node == node->parent->left) && (node->parent == grandparent->left))
+            _rotate_right(grandparent);
+        else
+            _rotate_left(grandparent);
     }
 
     t_node * _initRoot(const value_type& val) {
@@ -203,26 +314,40 @@ private:
         _maxNode = _minNode;
         _rootNode = _minNode;
         _minNode->color = BLACK;
-        _blacksHeight = 2;
         return _minNode;
     }
 
     t_node * _insertAfterNode(t_node *parent, bool isright, const value_type& val) {
-        t_node *newNode = _newNode(val, parent, parent->left, parent->right);
+        t_node *newNode;
+        if (isright) {
+            if (parent->right)
+                newNode = _newNode(val, parent, parent->left, parent->right);
+            else
+                newNode = _newNode(val, parent, nullptr, nullptr);
+        }
+        else {
+            if (parent->left)
+                newNode = _newNode(val, parent, parent->left, parent->right);
+            else
+                newNode = _newNode(val, parent, nullptr, nullptr);
+        }
+
         if (isright) {
             parent->right = newNode;
             if (parent == _maxNode)
                 _maxNode = newNode;
+//                _minNode = newNode;
         }
         else {
             parent->left = newNode;
             if (parent == _minNode)
                 _minNode = newNode;
+//                _maxNode = newNode;
         }
         return newNode;
     }
 
-    bool _find(const value_type& val, t_node **node) {
+    bool _searchWhereToInsert(const value_type& val, t_node **node) {
         bool result = false;
 
         t_node *temp_root = _rootNode;
@@ -231,11 +356,13 @@ private:
 
         while (temp_root) {
             temp_key_value = temp_root->key_value;
-            if (val.first == temp_key_value->first) {
+//            if (val.first == temp_key_value->first) {
+            if (!_compare(val.first, temp_key_value->first) && !_compare(temp_key_value->first, val.first)) {
                 *node = temp_root;
                 return true;
             }
-            else if (val.first < temp_key_value->first) {
+//            else if (val.first < temp_key_value->first) {
+            else if (_compare(val.first, temp_key_value->first)) {
                 temp_parent = temp_root;
                 result = false;
                 temp_root = temp_root->left;

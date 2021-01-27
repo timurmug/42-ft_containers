@@ -712,7 +712,6 @@ TEST(Deque_Modifiers, push_front) {
     b2.push_front ('a');
     b2.push_front ('b');
     checkTwoDeque(a2, b2);
-    printTwoDeque(a2, b2);
 }
 
 TEST(Deque_Modifiers, pop_back) {
