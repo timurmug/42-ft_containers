@@ -6,109 +6,290 @@
 #include "gtest/gtest.h"
 #include <map>
 
-TEST(Map_Base, empty_constructor) {
+static const char alphabet[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+std::string getRandomStr() {
+    const int len = rand() % 10;
+    std::string randomStr;
+    randomStr.reserve(len);
+    for (int i = 0; i < len; ++i)
+        randomStr += alphabet[rand() % (sizeof(alphabet) - 1)];
+    return randomStr;
+}
+int         getRandomInt() {
+    int randomInt = randomInt = rand();
+    if (rand() % 2 == 1)
+        randomInt *= -1;
+    return randomInt;
+}
+char        getRandomChar() {
+    return alphabet[rand() % (sizeof(alphabet) - 1)];
+}
+
+template <typename T, typename S>
+void checkTwoMaps(T & std_map, S & ft_map) {
+    typename T::iterator std_it = std_map.begin();
+    typename T::iterator std_ite = std_map.end();
+    typename S::iterator ft_it = ft_map.begin();
+    typename S::iterator ft_ite = ft_map.end();
+    EXPECT_EQ(std_map.size(), ft_map.size());
+    ASSERT_EQ((std_it == std_ite), (ft_it == ft_ite));
+    while (std_it != std_ite && ft_it != ft_ite) {
+        EXPECT_EQ(std_it->first, ft_it->first);
+        EXPECT_EQ(std_it->second, ft_it->second);
+        std_it++;
+        ft_it++;
+    }
+    ASSERT_EQ((std_it == std_ite), (ft_it == ft_ite));
+}
+
+template <typename T, typename S>
+void printTwoMaps(T & std_map, S & ft_map) {
+    typename T::iterator std_it = std_map.begin();
+    typename T::iterator std_ite = std_map.end();
+    typename S::iterator ft_it = ft_map.begin();
+    typename S::iterator ft_ite = ft_map.end();
+    std::cout << "std_map: |"<< std::setw(15) << "key| |"<< std::setw(15) << "value|" << std::endl;
+    std::cout << std::string(50, '-') << std::endl;
+    while (std_it != std_ite) {
+        std::cout << "\t\t |" << std::setw(12) << std_it->first << "| |" << std::setw(14) << std_it->second << "|" << std::endl;
+        std_it++;
+    }
+    std::cout << std::endl <<"ft_map: |"<< std::setw(15) << "key| |"<< std::setw(15) << "value|" << std::endl;
+    std::cout << std::string(50, '-') << std::endl;
+    while (ft_it != ft_ite) {
+        std::cout << "\t\t |" << std::setw(12) << ft_it->first << "| |" << std::setw(14) << ft_it->second << "|" << std::endl;
+        ft_it++;
+    }
+}
+
+bool fncomp (char lhs, char rhs) {
+    return lhs<rhs;
+}
+
+struct classcomp {
+    bool operator() (const char& lhs, const char& rhs) const {
+        return lhs<rhs;
+    }
+};
+
+TEST(Map_Base, empty_constructor1) {
     std::map<int, std::string> std_map;
     ft::map<int, std::string> ft_map;
-
-    EXPECT_EQ(std_map.size(), ft_map.size());
     std::pair<std::map<int, std::string>::iterator, bool> std_res;
     std::pair<ft::map<int, std::string>::iterator, bool> ft_res;
 
-//    srand(time(0));
-//    int n = 10;
-//    int key;
-//    while (n--) {
-//        key = rand();
-//        if (rand() % 2 == 1)
-//            key *= -1;
-//        std_res = std_map.insert ( std::pair<int, std::string>(key, "ten" ) );
-//        ft_res = ft_map.insert ( std::pair<int, std::string>(key, "ten" ) );
-//        EXPECT_EQ(std_map.size(), ft_map.size());
-//
-//        EXPECT_EQ(std_res.first->first, ft_res.first->first);
-//        EXPECT_EQ(std_res.first->second, ft_res.first->second);
-//        EXPECT_EQ(std_res.second, ft_res.second);
-//    }
+    EXPECT_EQ(std_map.size(), ft_map.size());
+    checkTwoMaps(std_map, ft_map);
 
-//    std_res = std_map.insert ( std::pair<int, std::string>(key, "ыфва" ) );
-//    ft_res = ft_map.insert ( std::pair<int, std::string>(key, "ыфва" ) );
-//    EXPECT_EQ(std_map.size(), ft_map.size());
+    srand(time(0));
+    int n = 10;
+    int key;
+    std::string value;
+    while (n--) {
+        key = getRandomInt();
+        value = getRandomStr();
+        std_res = std_map.insert ( std::pair<int, std::string>(key, value ) );
+        ft_res = ft_map.insert ( std::pair<int, std::string>(key, value ) );
+        EXPECT_EQ(std_map.size(), ft_map.size());
 
-    std_res = std_map.insert ( std::pair<int, std::string>(5, "ten" ) );
-    ft_res = ft_map.insert ( std::pair<int, std::string>(5, "ten" ) );
-
-    std_res = std_map.insert ( std::pair<int, std::string>(7, "ten" ) );
-    ft_res = ft_map.insert ( std::pair<int, std::string>(7, "ten" ) );
-
-//    std_res = std_map.insert ( std::pair<int, std::string>(8, "ten" ) );
-//    ft_res = ft_map.insert ( std::pair<int, std::string>(8, "ten" ) );
-//////
-//    std_res = std_map.insert ( std::pair<int, std::string>(6, "ten" ) );
-//    ft_res = ft_map.insert ( std::pair<int, std::string>(6, "ten" ) );
-////
-//    std_res = std_map.insert ( std::pair<int, std::string>(3, "ten" ) );
-//    ft_res = ft_map.insert ( std::pair<int, std::string>(3, "ten" ) );
-////
-//    std_res = std_map.insert ( std::pair<int, std::string>(4, "ten" ) );
-//    ft_res = ft_map.insert ( std::pair<int, std::string>(4, "ten" ) );
-
-    EXPECT_EQ(std_res.first->first, ft_res.first->first);
-    EXPECT_EQ(std_res.first->second, ft_res.first->second);
-    EXPECT_EQ(std_res.second, ft_res.second);
-
-    std::map<int, std::string>::iterator std_it = std_map.begin();
-    std::map<int, std::string>::iterator std_ite = std_map.end();
-    while (std_it != std_ite) {
-        std::cout << std_it->first << " " << std_it->second << std::endl;
-        std_it++;
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
     }
 
-    std::cout << std::endl;
+    checkTwoMaps(std_map, ft_map);
+    printTwoMaps(std_map, ft_map);
+}
 
-    ft::map<int, std::string>::iterator ft_it = ft_map.begin();
-    ft::map<int, std::string>::iterator ft_ite = ft_map.end();
-    while (ft_it != ft_ite) {
-        std::cout << ft_it->first << " " << ft_it->second << std::endl;
-        ft_it++;
+TEST(Map_Base, empty_constructor2) {
+    std::map<std::string, int> std_map;
+    ft::map<std::string, int> ft_map;
+    std::pair<std::map<std::string, int>::iterator, bool> std_res;
+    std::pair<ft::map<std::string, int>::iterator, bool> ft_res;
+
+    EXPECT_EQ(std_map.size(), ft_map.size());
+
+    srand(time(0));
+    int n = 10;
+    std::string key;
+    int value;
+    while (n--) {
+        key = getRandomStr();
+        value = getRandomInt();
+        std_res = std_map.insert ( std::pair<std::string, int>(key, value ) );
+        ft_res = ft_map.insert ( std::pair<std::string, int>(key, value ) );
+        EXPECT_EQ(std_map.size(), ft_map.size());
+
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
     }
 
-//    std::cout << std_res.first->first << " " << std_res.first->second << std::endl;
-//    std::cout << std_res.second << std::endl;
-//    std::cout << ft_res.first->first << " " << ft_res.first->second << std::endl;
-//    std::cout << ft_res.second << std::endl;
+    checkTwoMaps(std_map, ft_map);
+}
+
+TEST(Map_Base, range_constructor) {
+    std::map<char, int> a;
+    ft::map<char, int> b;
+    std::pair<std::map<char, int>::iterator, bool> std_res;
+    std::pair<ft::map<char, int>::iterator, bool> ft_res;
+
+    srand(time(0));
+    int n = 10;
+    char key;
+    int value;
+    while (n--) {
+        key = getRandomChar();
+        value = getRandomInt();
+        std_res = a.insert(std::pair<char, int>(key, value ));
+        ft_res = b.insert(std::pair<char, int>(key, value ));
+        EXPECT_EQ(a.size(), b.size());
+
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
+    }
+
+    std::map<char, int, classcomp> a2 (++a.begin(), a.end());
+    ft::map<char, int, classcomp> b2 (++a.begin(), a.end());
+    checkTwoMaps(a, b);
+    checkTwoMaps(a2, b2);
+
+    bool(*fn_pt)(char,char) = fncomp;
+    std::map<char,int,bool(*)(char,char)> c (fn_pt);
+    ft::map<char,int,bool(*)(char,char)> c2 (fn_pt);
+    checkTwoMaps(c, c2);
+}
+
+TEST(Map_Base, copy_constructor) {
+    std::map<char, int> a;
+    ft::map<char, int> b;
+    std::pair<std::map<char, int>::iterator, bool> std_res;
+    std::pair<ft::map<char, int>::iterator, bool> ft_res;
+
+    srand(time(0));
+    int n = 10;
+    char key;
+    int value;
+    while (n--) {
+        key = getRandomChar();
+        value = getRandomInt();
+        std_res = a.insert(std::pair<char, int>(key, value ));
+        ft_res = b.insert(std::pair<char, int>(key, value ));
+        EXPECT_EQ(a.size(), b.size());
+
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
+    }
+
+    std::map<char, int> a2(a);
+    ft::map<char, int> b2(b);
+    checkTwoMaps(a, b);
+    checkTwoMaps(a2, b2);
+
+    std_res = a.insert(std::pair<char, int>('.', value ));
+    ft_res = b.insert(std::pair<char, int>('.', value ));
+
+    checkTwoMaps(a, b);
+    checkTwoMaps(a2, b2);
+}
+
+TEST(Map_Base, operator_equal) {
+    std::map<char, int> a;
+    ft::map<char, int> b;
+    std::pair<std::map<char, int>::iterator, bool> std_res;
+    std::pair<ft::map<char, int>::iterator, bool> ft_res;
+
+    srand(time(0));
+    int n = 10;
+    char key;
+    int value;
+    while (n--) {
+        key = getRandomChar();
+        value = getRandomInt();
+        std_res = a.insert(std::pair<char, int>(key, value ));
+        ft_res = b.insert(std::pair<char, int>(key, value ));
+        EXPECT_EQ(a.size(), b.size());
+
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
+    }
+
+    std::map<char, int> a2 = a;
+    ft::map<char, int> b2 = b;
+    checkTwoMaps(a, b);
+    checkTwoMaps(a2, b2);
+
+    std_res = a.insert(std::pair<char, int>('.', value ));
+    ft_res = b.insert(std::pair<char, int>('.', value ));
+
+    a2 = a;
+    b2 = b;
+
+    checkTwoMaps(a, b);
+    checkTwoMaps(a2, b2);
 }
 
 
+/* Iterators */
+TEST(Map_Iterators, iterator) {
+    std::map<char, int> a;
+    ft::map<char, int> b;
+    std::pair<std::map<char, int>::iterator, bool> std_res;
+    std::pair<ft::map<char, int>::iterator, bool> ft_res;
 
-//TEST(Map_Base, test) {
-//    std::map<int, std::string> std_map;
-//    std::cout << "size: " << std_map.size() << std::endl;
+    srand(time(0));
+    int n = 10;
+    char key;
+    int value;
+    while (n--) {
+        key = getRandomChar();
+        value = getRandomInt();
+        std_res = a.insert(std::pair<char, int>(key, value ));
+        ft_res = b.insert(std::pair<char, int>(key, value ));
+        EXPECT_EQ(a.size(), b.size());
+
+        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+        EXPECT_EQ(std_res.second, ft_res.second);
+    }
+
+    std::map<char, int>::iterator std_it = a.begin();
+//    std::map<char, int>::iterator std_ite = a.end();
+    ft::map<char, int>::iterator ft_it = b.begin();
+    ft::map<char, int>::iterator ft_ite = b.end();
+
+    EXPECT_EQ((*std_it).first, (*ft_it).first);
+
+    ++std_it;
+    ++ft_it;
+
+    std_it++;
+    ft_it++;
+
+    std_it--;
+    ft_it--;
+
+    --std_it;
+    --ft_it;
+
+    EXPECT_EQ(*std_it, *ft_it);
+
+//    std::cout << std_ite->first << std::endl;
+//    --std_ite;
+////    --ft_ite; // end Noda должна быть нодой, чтобы можно вернуться к родителю!
+//    std::cout << std_ite->first << std::endl;
+
+    printTwoMaps(a, b);
+//    EXPECT_EQ(*(--std_ite), *(--ft_ite));
+}
+//TEST(test, test) {
 //
-//    std_map.insert ( std::pair<int, std::string>(21, "twenty one" ) );
-//    std_map.insert ( std::pair<int, std::string>(5, "five") );
-//    std_map.insert ( std::pair<int, std::string>(1, "one") );
-//    std_map.insert ( std::pair<int, std::string>(1, "one") );
-//    std_map.insert ( std::pair<int, std::string>(0, "null") );
-//    std_map.insert ( std::pair<int, std::string>(2, "two") );
-////    std_map["twenty one"] = 21;
-////    std_map["five"] = 5;
-////    std_map["one"] = 1;
-////    std_map["null"] = 0;
-////    std_map["two"] = 2;
-//
-//    std::map<int, std::string>::iterator it = std_map.begin();
-//    std::map<int, std::string>::iterator ite = std_map.end();
-//
-//    std::cout << "\n";
-//    while(it != ite) {
-//        std::cout << it->first << " " << it->second << std::endl;
-//        it++;
-//    }
-//    std::cout << "\n";
-//
-//    std::cout << "size: " << std_map.size() << std::endl;
-//    std::pair<int, std::string> pair(2, "two");
-//    std::cout << "\n" << pair.first << " " << pair.second << "\n";
-//    FAIL();
+//    while (1) ;
 //}
-

@@ -2,6 +2,7 @@
 #define MAP_HPP
 
 #include <memory>
+#include <iostream>
 #include "stack.hpp"
 
 template<bool Cond, class T = void>
@@ -61,13 +62,15 @@ private:
 /* Local variables */
     #define RED     0
     #define BLACK   1
+//    static const bool BLACK = true;
+//    static const bool RED = false;
 
     typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
     allocator_rebind_type 	_alloc_rebind;
     allocator_type          _alloc;
     t_node                  *_minNode;
     t_node                  *_maxNode;
-//    t_node                  *_endNode;
+    t_node                  *_endNode;
     t_node                  *_rootNode;
     size_type				_size;
     key_compare             _compare;
@@ -76,67 +79,83 @@ public:
 /* Constructors */
 //    empty (1)
     explicit map (const key_compare& comp = key_compare(),
-                  const allocator_type& alloc = allocator_type()) :  _alloc(alloc), _size(0), _compare(comp) {
-//        _initBeginNode();
-    }
+                  const allocator_type& alloc = allocator_type()) :  _alloc(alloc), _size(0), _compare(comp) { }
 //    range (2)
     template <class InputIterator>
     map (InputIterator first, InputIterator last,
          const key_compare& comp = key_compare(),
-         const allocator_type& alloc = allocator_type()) : _alloc(alloc), _size(0), _compare(comp) {
-        (void)first;
-        (void)last;
+         const allocator_type& alloc = allocator_type(),
+         typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) : _alloc(alloc), _size(0), _compare(comp) {
+        while (first != last) {
+            insert(*first);
+            first++;
+        }
     }
 //    copy (3)
     map (const map& x)  {
-        (void)x;
+        *this = x;
     }
 
+/* Assignation operator */
+    map& operator=(const map& x) {
+        if (this != &x) {
+            _clear();
+            _alloc_rebind = x._alloc_rebind;
+            _alloc = x._alloc;
+            _size = 0;
+            _compare = x._compare;
+            const_iterator first = x.begin();
+            const_iterator last = x.end();
+            while (first != last) {
+                insert(*first);
+                first++;
+            }
+        }
+        return *this;
+    }
+
+/* Destructor */
+    ~map() {
+        _clear();
+    }
 
 /* Iterators classes */
     class iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
-        t_node   *_node_ptr;
-//        stack<t_node> stack;
-        t_node *_getMinNode(t_node *node)  {
-            if (node->left == nullptr)
-                return node;
-            return _getMinNode(node->left);
-        }
-
-        t_node *_mapIteratorNext(t_node *node)  {
-            if (node->right)
-                return _getMinNode(node->right);
-            if (node->parent && node->parent->left == node)
-                return node->parent;
-            t_node *tmp = node;
-            do {
-                tmp = tmp->parent;
-                if (tmp == nullptr)
-                    return node->right;
-            } while (tmp->parent->right == tmp);
-            return tmp->parent;
-        }
-        t_node * _Rb_tree_increment(t_node *node)
-        {
-            if (node->right != 0)
+        t_node  *_node_ptr;
+        void    _findNextNode() {
+            if (_node_ptr->right)
             {
-                node = node->right;
-                while (node->right != 0)
-                    node = node->left;
+                _node_ptr = _node_ptr->right;
+                while (_node_ptr->left)
+                    _node_ptr = _node_ptr->left;
             }
             else
             {
-                t_node* temp = node->parent;
-                while (node == temp->right)
+                t_node *child;
+                do
                 {
-                    node = temp;
-                    temp = temp->parent;
-                }
-                if (node->right != temp)
-                    node = temp;
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->right);
             }
-            return node;
+        }
+        void    _findPrevNode() {
+            if (_node_ptr->left)
+            {
+                _node_ptr = _node_ptr->left;
+                while (_node_ptr && _node_ptr->right)
+                    _node_ptr = _node_ptr->right;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->left);
+            }
         }
     public:
         iterator() : _node_ptr(NULL) {  }
@@ -150,54 +169,86 @@ public:
             return *this;
         }
 
-        bool operator==(const iterator& rhs) const { return this->_node_ptr == rhs._node_ptr; }
-        bool operator!=(const iterator& rhs) const {
-//            if (!rhs._node_ptr && !this->_node_ptr)
-//                return true;
-            return this->_node_ptr != rhs._node_ptr;
+        bool        operator==(const iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
+        bool        operator!=(const iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
+
+        value_type& operator*()                         const   { return *this->_node_ptr->key_value; }
+        value_type* operator->()                        const   { return this->_node_ptr->key_value; }
+
+        iterator&   operator++()                                { _findNextNode(); return *this; }
+        iterator    operator++(int)                             { iterator tmp = *this; operator++(); return tmp; }
+        iterator&   operator--()                                { _findPrevNode(); return *this; }
+        iterator    operator--(int)                             { iterator tmp = *this; operator--(); return tmp; }
+
+        t_node *getNodePtr() const { return _node_ptr; }
+    };
+
+    class const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        t_node  *_node_ptr;
+        void    _findNextNode() {
+            if (_node_ptr->right)
+            {
+                _node_ptr = _node_ptr->right;
+                while (_node_ptr->left)
+                    _node_ptr = _node_ptr->left;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->right);
+            }
         }
+    public:
+        const_iterator() : _node_ptr(NULL) {  }
+        const_iterator(t_node* node_ptr) : _node_ptr(node_ptr) {  }
+        const_iterator(const const_iterator& src) { *this = src; }
+        const_iterator(const iterator& src) { *this = src; }
+        virtual ~const_iterator() { }
 
-        value_type& operator*() const { return *this->_node_ptr->key_value; }
-        value_type * operator->() const { return this->_node_ptr->key_value; }
-
-        iterator& operator++() {
-//            this->_node_ptr = this->_node_ptr->next;
-//            stack<t_node> stack;
-
-//            if(_node_ptr)
-//            {
-//                if(_node_ptr->right)
-//                {
-//                    stack.push(*_node_ptr->right);
-//                }
-//
-//                if(_node_ptr->left)
-//                {
-//                    _node_ptr = _node_ptr->left;
-//                }
-//                else
-//                {
-//                    _node_ptr = &stack.top();
-//                    stack.pop();
-//                }
-//            }
-
-//            this->_node_ptr = _mapIteratorNext(this->_node_ptr);
-            this->_node_ptr = _Rb_tree_increment(this->_node_ptr);
+        const_iterator & operator=(const_iterator const & rhs) {
+            if (this != &rhs)
+                this->_node_ptr = rhs._node_ptr;
             return *this;
         }
-        iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
-        iterator& operator--() { this->_node_ptr = this->_node_ptr->prev; return *this; }
-        iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
+        const_iterator & operator=(iterator const & rhs) {
+            if (this != &rhs)
+                this->_node_ptr = rhs._node_ptr;
+            return *this;
+        }
 
-//        t_node *getNodePtr() const { return _node_ptr; }
+        bool        operator==(const const_iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
+        bool        operator!=(const const_iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
+
+        value_type& operator*()                               const   { return *this->_node_ptr->key_value; }
+        value_type* operator->()                              const   { return this->_node_ptr->key_value; }
+
+        const_iterator&   operator++()                                { _findNextNode(); return *this; }
+        const_iterator    operator++(int)                             { const_iterator tmp = *this; operator++(); return tmp; }
+        const_iterator&   operator--()                                { this->_node_ptr = this->_node_ptr->prev; return *this; }
+        const_iterator    operator--(int)                             { const_iterator tmp = *this; operator--(); return tmp; }
+
+        t_node *getNodePtr() const { return _node_ptr; }
     };
 
 /* Iterators */
     iterator 				begin()             { return iterator(_minNode); }
-//    const_iterator 		    begin()     const   { return const_iterator(_beginNode); }
-    iterator				end()               { return iterator(_maxNode->right);	}
-//    const_iterator			end()       const   { return const_iterator(_endNode); }
+    const_iterator 		    begin()     const   { return const_iterator(_minNode); }
+    iterator				end()               {
+        if (_size)
+            return iterator(_maxNode->right);
+//            return iterator(_endNode);
+        return begin();
+    }
+    const_iterator			end()       const   {
+        if (_size)
+            return const_iterator(_maxNode->right);
+        return begin();
+    }
 
 /* Capacity */
     bool        empty()     const { return (this->_size == 0); }
@@ -312,6 +363,7 @@ private:
     t_node * _initRoot(const value_type& val) {
         _minNode = _newNode(val, nullptr, nullptr, nullptr);
         _maxNode = _minNode;
+        _endNode = endNode(_maxNode);
         _rootNode = _minNode;
         _minNode->color = BLACK;
         return _minNode;
@@ -336,6 +388,8 @@ private:
             parent->right = newNode;
             if (parent == _maxNode)
                 _maxNode = newNode;
+                _endNode->parent = _maxNode;
+//                _maxNode->right = _endNode;
 //                _minNode = newNode;
         }
         else {
@@ -446,7 +500,7 @@ private:
         newNode->key_value = _alloc.allocate(1);
         _alloc.construct(newNode->key_value, val);
 
-        newNode->color = _alloc.allocate(1);
+//        newNode->color = _alloc.allocate(1);
         newNode->color = RED;
 
         if (leftNode)
@@ -458,26 +512,32 @@ private:
         return newNode;
     }
 
-    void _changeNodeColor(t_node *node) {
-        node->color = !node->color;
+    t_node *endNode(t_node *parentNode) {
+        t_node *newNode = _alloc_rebind.allocate(1);
+        newNode->parent = parentNode;
+        newNode->left = nullptr;
+        newNode->right = nullptr;
+
+        newNode->key_value = _alloc.allocate(1);
+        parentNode->right = newNode;
+        return newNode;
     }
 
     void _deleteNode(t_node *node) {
+//        _alloc.destroy(node->color);
+//        _alloc.deallocate(node->color, 1);
+//        delete node->color;
         _alloc.destroy(node->key_value);
         _alloc.deallocate(node->key_value, 1);
+        _alloc_rebind.destroy(node);
+        node = nullptr;
 
-        _alloc.destroy(node->color);
-        _alloc.deallocate(node->color, 1);
+//        _alloc_rebind.deallocate(node, 1);
+//        _alloc.deallocate(node->color, 1);
     }
 
     void _clear() {
-//        iterator it = begin();
-//        iterator ite = end();
-//        while (it != ite) {
-//            _deleteNode(*it);
-//            it++;
-//        }
-//        _alloc_rebind.deallocate(_beginNode, 1);
+
     }
 
 };
