@@ -62,16 +62,18 @@ private:
 /* Local variables */
     #define RED     0
     #define BLACK   1
-//    static const bool BLACK = true;
-//    static const bool RED = false;
 
     typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
     allocator_rebind_type 	_alloc_rebind;
     allocator_type          _alloc;
+
     t_node                  *_minNode;
     t_node                  *_maxNode;
-    t_node                  *_endNode;
     t_node                  *_rootNode;
+
+    t_node                  *_endNode;
+    t_node                  *_beginNode;
+
     size_type				_size;
     key_compare             _compare;
 
@@ -180,7 +182,7 @@ public:
         iterator&   operator--()                                { _findPrevNode(); return *this; }
         iterator    operator--(int)                             { iterator tmp = *this; operator--(); return tmp; }
 
-        t_node *getNodePtr() const { return _node_ptr; }
+        t_node      *getNodePtr()                       const   { return _node_ptr; }
     };
 
     class const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
@@ -203,6 +205,23 @@ public:
                 } while (_node_ptr && child == _node_ptr->right);
             }
         }
+        void    _findPrevNode() {
+            if (_node_ptr->left)
+            {
+                _node_ptr = _node_ptr->left;
+                while (_node_ptr && _node_ptr->right)
+                    _node_ptr = _node_ptr->right;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->left);
+            }
+        }
     public:
         const_iterator() : _node_ptr(NULL) {  }
         const_iterator(t_node* node_ptr) : _node_ptr(node_ptr) {  }
@@ -216,8 +235,7 @@ public:
             return *this;
         }
         const_iterator & operator=(iterator const & rhs) {
-            if (this != &rhs)
-                this->_node_ptr = rhs._node_ptr;
+            this->_node_ptr = rhs.getNodePtr();
             return *this;
         }
 
@@ -229,32 +247,164 @@ public:
 
         const_iterator&   operator++()                                { _findNextNode(); return *this; }
         const_iterator    operator++(int)                             { const_iterator tmp = *this; operator++(); return tmp; }
-        const_iterator&   operator--()                                { this->_node_ptr = this->_node_ptr->prev; return *this; }
+        const_iterator&   operator--()                                { _findPrevNode(); return *this; }
         const_iterator    operator--(int)                             { const_iterator tmp = *this; operator--(); return tmp; }
 
-        t_node *getNodePtr() const { return _node_ptr; }
+        t_node            *getNodePtr()                       const   { return _node_ptr; }
+    };
+
+    class reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        t_node  *_node_ptr;
+        void    _findNextNode() {
+            if (_node_ptr->right)
+            {
+                _node_ptr = _node_ptr->right;
+                while (_node_ptr->left)
+                    _node_ptr = _node_ptr->left;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->right);
+            }
+        }
+        void    _findPrevNode() {
+            if (_node_ptr->left)
+            {
+                _node_ptr = _node_ptr->left;
+                while (_node_ptr && _node_ptr->right)
+                    _node_ptr = _node_ptr->right;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->left);
+            }
+        }
+    public:
+        reverse_iterator() : _node_ptr(NULL) {  }
+        reverse_iterator(t_node* node_ptr) : _node_ptr(node_ptr) {  }
+        reverse_iterator(const reverse_iterator& src) { *this = src; }
+        virtual ~reverse_iterator() { }
+
+        reverse_iterator & operator=(reverse_iterator const & rhs) {
+            if (this != &rhs)
+                this->_node_ptr = rhs._node_ptr;
+            return *this;
+        }
+
+        bool                operator==(const reverse_iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
+        bool                operator!=(const reverse_iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
+
+        value_type&         operator*()                                 const   { return *this->_node_ptr->key_value; }
+        value_type*         operator->()                                const   { return this->_node_ptr->key_value; }
+
+        reverse_iterator&   operator++()                                        { _findPrevNode(); return *this; }
+        reverse_iterator    operator++(int)                                     { reverse_iterator tmp = *this; operator++(); return tmp; }
+        reverse_iterator&   operator--()                                        { _findNextNode(); return *this; }
+        reverse_iterator    operator--(int)                                     { reverse_iterator tmp = *this; operator--(); return tmp; }
+
+        t_node              *getNodePtr()                               const   { return _node_ptr; }
+    };
+
+    class const_reverse_iterator : public std::iterator<std::input_iterator_tag, value_type> {
+    private:
+        t_node  *_node_ptr;
+        void    _findNextNode() {
+            if (_node_ptr->right)
+            {
+                _node_ptr = _node_ptr->right;
+                while (_node_ptr->left)
+                    _node_ptr = _node_ptr->left;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->right);
+            }
+        }
+        void    _findPrevNode() {
+            if (_node_ptr->left)
+            {
+                _node_ptr = _node_ptr->left;
+                while (_node_ptr && _node_ptr->right)
+                    _node_ptr = _node_ptr->right;
+            }
+            else
+            {
+                t_node *child;
+                do
+                {
+                    child = _node_ptr;
+                    _node_ptr = _node_ptr->parent;
+                } while (_node_ptr && child == _node_ptr->left);
+            }
+        }
+    public:
+        const_reverse_iterator() : _node_ptr(NULL) {  }
+        const_reverse_iterator(t_node* node_ptr) : _node_ptr(node_ptr) {  }
+        const_reverse_iterator(const const_reverse_iterator& src) { *this = src; }
+        const_reverse_iterator(const reverse_iterator& src) { *this = src; }
+        virtual ~const_reverse_iterator() { }
+
+        const_reverse_iterator & operator=(const_reverse_iterator const & rhs) {
+            if (this != &rhs)
+                this->_node_ptr = rhs._node_ptr;
+            return *this;
+        }
+        const_reverse_iterator & operator=(reverse_iterator const & rhs) {
+            this->_node_ptr = rhs.getNodePtr();
+            return *this;
+        }
+
+        bool                        operator==(const const_reverse_iterator& rhs)   const   { return this->_node_ptr == rhs._node_ptr; }
+        bool                        operator!=(const const_reverse_iterator& rhs)   const   { return this->_node_ptr != rhs._node_ptr; }
+
+        value_type&                 operator*()                                     const   { return *this->_node_ptr->key_value; }
+        value_type*                 operator->()                                    const   { return this->_node_ptr->key_value; }
+
+        const_reverse_iterator&     operator++()                                            { _findPrevNode(); return *this; }
+        const_reverse_iterator      operator++(int)                                         { const_reverse_iterator tmp = *this; operator++(); return tmp; }
+        const_reverse_iterator&     operator--()                                            { _findNextNode(); return *this; }
+        const_reverse_iterator      operator--(int)                                         { const_reverse_iterator tmp = *this; operator--(); return tmp; }
+
+        t_node                      *getNodePtr()                                   const   { return _node_ptr; }
     };
 
 /* Iterators */
     iterator 				begin()             { return iterator(_minNode); }
     const_iterator 		    begin()     const   { return const_iterator(_minNode); }
-    iterator				end()               {
-        if (_size)
-            return iterator(_maxNode->right);
-//            return iterator(_endNode);
-        return begin();
-    }
-    const_iterator			end()       const   {
-        if (_size)
-            return const_iterator(_maxNode->right);
-        return begin();
-    }
+    iterator				end()               { if (_size) return iterator(_endNode); return begin(); }
+    const_iterator			end()       const   { if (_size) return const_iterator(_endNode); return begin(); }
+
+    reverse_iterator 		rbegin()            { return reverse_iterator(_maxNode); }
+    reverse_iterator		rend()              { if (_size) return reverse_iterator(_beginNode); return rbegin(); }
+    const_reverse_iterator 	rbegin()    const   { return const_reverse_iterator(_maxNode); }
+    const_reverse_iterator	rend()      const   { if (_size) return const_reverse_iterator(_beginNode); return rbegin(); }
+
 
 /* Capacity */
-    bool        empty()     const { return (this->_size == 0); }
-    size_type   size()      const { return this->_size; }
-    size_type   max_size()  const { return std::numeric_limits<std::size_t>::max() / sizeof(t_node); }
-
+    bool                    empty()     const   { return (this->_size == 0); }
+    size_type               size()      const   { return this->_size; }
+    size_type               max_size()  const   { return std::numeric_limits<size_type>::max()/ sizeof(map<Key, T, Compare, Alloc>); }
+/* Element access */
+    mapped_type& operator[] (const key_type& k) {
+        (void)k;
+        return nullptr;
+    }
 
 /* Modifiers */
 //    single element (1)
@@ -262,8 +412,8 @@ public:
         t_node *newNode = nullptr;
 
         if (!_size) {                                                           // случай 1 - вставляем в корень
-            newNode = _initRoot(val);
-            return std::pair<iterator, bool>(iterator(newNode), true);
+            _initRoot(val);
+            return std::pair<iterator, bool>(iterator(_rootNode), true);
         }
 
         t_node *parent;
@@ -272,13 +422,10 @@ public:
             return std::pair<iterator, bool>(iterator(parent), false);
 
         newNode = _insertAfterNode(parent, rightOrEqual, val);
-        if (parent->color == BLACK) {                                            // случай 2 - предок черный
-//            newNode = _insertAfterNode(parent, rightOrEqual, val);
+        if (parent->color == BLACK)                                            // случай 2 - предок черный
             return std::pair<iterator, bool>(iterator(newNode), true);
-        }
 
         // остальные случаи проваливаются сюда из-за возможной рекурсии
-//        newNode = _newNode(val, parent, nullptr, nullptr);
         _changesAfterInsert_case3(newNode);
         return std::pair<iterator, bool>(iterator(newNode), true);
     }
@@ -360,76 +507,32 @@ private:
             _rotate_left(grandparent);
     }
 
-    t_node * _initRoot(const value_type& val) {
-        _minNode = _newNode(val, nullptr, nullptr, nullptr);
-        _maxNode = _minNode;
-        _endNode = endNode(_maxNode);
-        _rootNode = _minNode;
-        _minNode->color = BLACK;
-        return _minNode;
-    }
-
-    t_node * _insertAfterNode(t_node *parent, bool isright, const value_type& val) {
-        t_node *newNode;
-        if (isright) {
-            if (parent->right)
-                newNode = _newNode(val, parent, parent->left, parent->right);
-            else
-                newNode = _newNode(val, parent, nullptr, nullptr);
-        }
-        else {
-            if (parent->left)
-                newNode = _newNode(val, parent, parent->left, parent->right);
-            else
-                newNode = _newNode(val, parent, nullptr, nullptr);
-        }
-
-        if (isright) {
-            parent->right = newNode;
-            if (parent == _maxNode)
-                _maxNode = newNode;
-                _endNode->parent = _maxNode;
-//                _maxNode->right = _endNode;
-//                _minNode = newNode;
-        }
-        else {
-            parent->left = newNode;
-            if (parent == _minNode)
-                _minNode = newNode;
-//                _maxNode = newNode;
-        }
-        return newNode;
-    }
-
     bool _searchWhereToInsert(const value_type& val, t_node **node) {
-        bool result = false;
+        bool        rightOrEqual;
+        t_node      *temp_root = _rootNode;
+        t_node      *temp_parent;
+        value_type  *temp_key_value;
 
-        t_node *temp_root = _rootNode;
-        t_node *temp_parent;
-        value_type *temp_key_value;
-
-        while (temp_root) {
+        while (temp_root && temp_root->key_value) {
             temp_key_value = temp_root->key_value;
-//            if (val.first == temp_key_value->first) {
             if (!_compare(val.first, temp_key_value->first) && !_compare(temp_key_value->first, val.first)) {
                 *node = temp_root;
                 return true;
             }
-//            else if (val.first < temp_key_value->first) {
             else if (_compare(val.first, temp_key_value->first)) {
                 temp_parent = temp_root;
-                result = false;
+                rightOrEqual = false;
                 temp_root = temp_root->left;
             }
             else {
                 temp_parent = temp_root;
-                result = true;
+                rightOrEqual = true;
                 temp_root = temp_root->right;
             }
         }
 
         *node = temp_parent;
-        return result;
+        return rightOrEqual;
     }
 
     t_node * _getGrandparent(t_node *node) {
@@ -491,7 +594,65 @@ private:
         pivot->right = node;
     }
 
-    t_node * _newNode(const value_type& val, t_node *parentNode, t_node *leftNode, t_node *rightNode) {
+    t_node *    _insertAfterNode(t_node *parent, bool isright, const value_type& val) {
+        t_node *newNode;
+        if (isright) {
+            if (parent->right && parent->right == _endNode)     // если справа _endNode
+                newNode = _initNewNode(val, parent, nullptr, _endNode);
+            else if (parent->right)                             // если справа есть какая то нода
+                newNode = _initNewNode(val, parent, parent->left, parent->right);
+            else                                                // справа нет ноды, поэтому у новой ноды нет потомков
+                newNode = _initNewNode(val, parent, nullptr, nullptr);
+        }
+        else {
+            if (parent->left && parent->left == _beginNode)     // если слева _endNode
+                newNode = _initNewNode(val, parent, _beginNode, nullptr);
+            else if (parent->left)                              // если слева есть какая то нода
+                newNode = _initNewNode(val, parent, parent->left, parent->right);
+            else                                                // слева нет ноды, поэтому у новой ноды нет потомков
+                newNode = _initNewNode(val, parent, nullptr, nullptr);
+        }
+
+        if (isright) {
+            parent->right = newNode;
+            if (parent == _maxNode)
+                _maxNode = newNode;
+        }
+        else {
+            parent->left = newNode;
+            if (parent == _minNode)
+                _minNode = newNode;
+        }
+        return newNode;
+    }
+
+    void        _initRoot(const value_type& val) {
+        /* init root */
+         _rootNode = _maxNode = _minNode = _initNewNode(val, nullptr, nullptr, nullptr);
+         _rootNode->color = BLACK;
+
+        /* init _endNode */
+         _endNode = _alloc_rebind.allocate(1);
+         _endNode->parent = _maxNode;
+         _endNode->left = nullptr;
+         _endNode->right = nullptr;
+
+         _endNode->key_value = nullptr;
+         _endNode->color = BLACK;
+         _maxNode->right = _endNode;
+
+        /* init _beginNode */
+        _beginNode = _alloc_rebind.allocate(1);
+        _beginNode->parent = _minNode;
+        _beginNode->left = nullptr;
+        _beginNode->right = nullptr;
+
+        _beginNode->key_value = nullptr;
+        _beginNode->color = BLACK;
+        _minNode->left = _beginNode;
+    }
+
+    t_node *    _initNewNode(const value_type& val, t_node *parentNode, t_node *leftNode, t_node *rightNode) {
         t_node *newNode = _alloc_rebind.allocate(1);
         newNode->parent = parentNode;
         newNode->left = leftNode;
@@ -500,7 +661,6 @@ private:
         newNode->key_value = _alloc.allocate(1);
         _alloc.construct(newNode->key_value, val);
 
-//        newNode->color = _alloc.allocate(1);
         newNode->color = RED;
 
         if (leftNode)
@@ -509,17 +669,6 @@ private:
             rightNode->parent = newNode;
 
         _size++;
-        return newNode;
-    }
-
-    t_node *endNode(t_node *parentNode) {
-        t_node *newNode = _alloc_rebind.allocate(1);
-        newNode->parent = parentNode;
-        newNode->left = nullptr;
-        newNode->right = nullptr;
-
-        newNode->key_value = _alloc.allocate(1);
-        parentNode->right = newNode;
         return newNode;
     }
 
