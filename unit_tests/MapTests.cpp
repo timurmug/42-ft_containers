@@ -636,24 +636,65 @@ TEST(Map_Capacity_Element_Access, max_size) {
 }
 
 TEST(Map_Capacity_Element_Access, operator_) {
+    std::map<char,std::string> std_map;
+    ft::map<char,std::string> ft_map;
 
-    std::map<char,std::string> mymap;
+    std_map['a'] = "an element";
+    ft_map['a'] = "an element";
 
-    mymap['a'] = "an element";
-    mymap['b'] = "another element";
-//    mymap['b'] = "another element";
-//    mymap['c']=mymap['b'];
-    mymap['c'] = mymap['b'];
+    std_map['b'] = "another element";
+    std_map['b'] = "another element";
+    ft_map['b'] = "another element";
+    ft_map['b'] = "another element";
 
-    std::cout << "mymap['a'] is " << mymap['a'] << '\n';
-    std::cout << "mymap['b'] is " << mymap['b'] << '\n';
-    std::cout << "mymap['c'] is " << mymap['c'] << '\n';
-    std::cout << "mymap['d'] is " << mymap['d'] << '\n';
+    std_map['c'] = std_map['b'];
+    ft_map['c'] = ft_map['b'];
 
-    std::cout << "mymap now contains " << mymap.size() << " elements.\n";
+    EXPECT_EQ(std_map['d'], ft_map['d']);
 
-    FAIL();
+    checkTwoMaps(std_map, ft_map);
 }
+
+
+/* Modifiers */
+TEST(Map_Modifiers, insert) {
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    std::pair<std::map<char,int>::iterator,bool> std_ret;
+    std::pair<ft::map<char,int>::iterator,bool> ft_ret;
+    int value;
+    char key;
+    for (int i = 0; i != 10; i++) {
+        key = getRandomChar();
+        value = getRandomInt();
+        std_ret = std_map.insert ( std::pair<char,int>(key, value) );
+        ft_ret = ft_map.insert ( std::pair<char,int>(key, value) );
+        EXPECT_EQ((*std_ret.first).first, (*ft_ret.first).first);
+        EXPECT_EQ((*std_ret.first).second, (*ft_ret.first).second);
+        EXPECT_EQ(std_ret.second, ft_ret.second);
+    }
+    checkTwoMaps(std_map, ft_map);
+
+    std::map<char,int>::iterator std_it = std_map.begin();
+    ft::map<char,int>::iterator ft_it = ft_map.begin();
+    std::map<char,int>::iterator std_it2 = std_map.insert (std_it,  std::pair<char,int>(key, value) );
+    ft::map<char,int>::iterator ft_it2 = ft_map.insert (ft_it, std::pair<char,int>(key, value) );
+    EXPECT_EQ(std_it2->first, ft_it2->first);
+    EXPECT_EQ(std_it2->second, ft_it2->second);
+    checkTwoMaps(std_map, ft_map);
+
+    std::map<char,int> std_map2;
+    std_map2.insert(std_map.begin(),std_map.end()--);
+    ft::map<char,int> ft_map2;
+    ft_map2.insert(ft_map.begin(),ft_map.end()--);
+    checkTwoMaps(std_map2, ft_map2);
+}
+
+//TEST(Map_Modifiers, erase) {
+//
+//
+//}
 
 //TEST(test, test) {
 //

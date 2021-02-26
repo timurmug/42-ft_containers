@@ -401,10 +401,7 @@ public:
     size_type               size()      const   { return this->_size; }
     size_type               max_size()  const   { return std::numeric_limits<size_type>::max()/ sizeof(map<Key, T, Compare, Alloc>); }
 /* Element access */
-    mapped_type& operator[] (const key_type& k) {
-        (void)k;
-        return nullptr;
-    }
+    mapped_type& operator[] (const key_type& k) { return ((*((this->insert(make_pair(k,mapped_type()))).first)).second); }
 
 /* Modifiers */
 //    single element (1)
@@ -430,11 +427,25 @@ public:
         return std::pair<iterator, bool>(iterator(newNode), true);
     }
 //    with hint (2)
-//    iterator insert (iterator position, const value_type& val) { (void)position; (void)val; }
+    iterator insert (iterator position, const value_type& val) {
+        (void)position;
+        return insert(val).first;
+    }
 //    range (3)
-//    template <class InputIterator>
-//    void insert (InputIterator first, InputIterator last) { (void)first; (void)last; }
+    template <class InputIterator>
+    void insert (InputIterator first, InputIterator last, typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
+        for ( ; first != last; ++first)
+            insert(*first);
+    }
 
+//    (1)
+    void erase (iterator position) {
+
+    }
+//    (2)
+    size_type erase (const key_type& k);
+//    (3)
+    void erase (iterator first, iterator last);
 
 /* Additional functions */
 private:
