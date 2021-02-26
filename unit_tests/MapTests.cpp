@@ -691,12 +691,230 @@ TEST(Map_Modifiers, insert) {
     checkTwoMaps(std_map2, ft_map2);
 }
 
-//TEST(Map_Modifiers, erase) {
-//
-//
-//}
+TEST(Map_Modifiers, erase) {
+    FAIL();
+}
 
-//TEST(test, test) {
-//
-//    while (1) ;
-//}
+TEST(Map_Modifiers, swap) {
+    std::map<char,char> std_map;
+    ft::map<char,char> ft_map;
+
+    std_map['a'] = '2';
+    ft_map['a'] = '2';
+
+    std::map<char,int> foo, bar;
+    foo['x']=100;
+    foo['y']=200;
+    bar['a']=11;
+    bar['b']=22;
+    bar['c']=33;
+    foo.swap(bar);
+
+    ft::map<char,int> foo2, bar2;
+    foo2['x']=100;
+    foo2['y']=200;
+    bar2['a']=11;
+    bar2['b']=22;
+    bar2['c']=33;
+    foo2.swap(bar2);
+
+    checkTwoMaps(foo, foo2);
+    checkTwoMaps(bar, bar2);
+}
+
+TEST(Map_Modifiers, clear) {
+    FAIL();
+}
+
+
+/* Observers */
+TEST(Map_Observers, key_comp) {
+    std::map<char,int> std_map;
+    std::map<char,int>::key_compare std_compare = std_map.key_comp();
+    ft::map<char,int> ft_map;
+    ft::map<char,int>::key_compare ft_compare = ft_map.key_comp();
+
+    std_map['a']=100;
+    std_map['b']=200;
+    std_map['c']=300;
+    ft_map['a']=100;
+    ft_map['b']=200;
+    ft_map['c']=300;
+
+    char highest = std_map.rbegin()->first;
+    char highest2 = ft_map.rbegin()->first;
+
+    std::map<char,int>::iterator it = std_map.begin();
+    ft::map<char,int>::iterator it2 = ft_map.begin();
+
+    while ( std_compare((*it).first, highest) && ft_compare((*it).first, highest2)) {
+        EXPECT_EQ(it->first, it2->first);
+        EXPECT_EQ(it->second, it2->second);
+        it++;
+        it2++;
+    }
+    EXPECT_EQ((--it)->first, (--it2)->first);
+}
+
+TEST(Map_Observers, value_comp) {
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    std_map['a']=100;
+    std_map['b']=200;
+    std_map['c']=300;
+    ft_map['a']=100;
+    ft_map['b']=200;
+    ft_map['c']=300;
+
+    std::map<char,int>::iterator it = std_map.begin();
+    ft::map<char,int>::iterator it2 = ft_map.begin();
+
+    while ( std_map.value_comp()(*it, *std_map.rbegin()) && ft_map.value_comp()(*it, *ft_map.rbegin())) {
+        EXPECT_EQ(it->first, it2->first);
+        EXPECT_EQ(it->second, it2->second);
+        std::cout << it->first << " => " << it->second << '\n';
+        std::cout << it2->first << " => " << it2->second << "\n\n";
+        it++;
+        it2++;
+    }
+    EXPECT_EQ((--it)->first, (--it2)->first);
+}
+
+
+/* Operations */
+TEST(Map_Operations, find) {
+    std::map<char, int> std_map;
+    std::map<char, int>::iterator std_it;
+    ft::map<char, int> ft_map;
+    ft::map<char, int>::iterator ft_it;
+
+    std_map['a'] = 50;
+    std_map['b'] = 100;
+    std_map['c'] = 150;
+    std_map['d'] = 200;
+    ft_map['a'] = 50;
+    ft_map['b'] = 100;
+    ft_map['c'] = 150;
+    ft_map['d'] = 200;
+
+    for (char symbol = 'a'; symbol != 'e'; symbol++) {
+        std_it = std_map.find(symbol);
+        ft_it = ft_map.find(symbol);
+        EXPECT_EQ(std_it->first, ft_it->first);
+        EXPECT_EQ(std_it->second, ft_it->second);
+    }
+
+    std_it = std_map.find('n');
+    ft_it = ft_map.find('n');
+    EXPECT_EQ(std_it, std_map.end());
+    EXPECT_EQ(ft_it, ft_map.end());
+
+
+    std::map<char, int> std_map2;
+    std::map<char, int>::const_iterator std_it2;
+    ft::map<char, int> ft_map2;
+    ft::map<char, int>::const_iterator ft_it2;
+
+    std_map2['a'] = 50;
+    std_map2['b'] = 100;
+    std_map2['c'] = 150;
+    std_map2['d'] = 200;
+    ft_map2['a'] = 50;
+    ft_map2['b'] = 100;
+    ft_map2['c'] = 150;
+    ft_map2['d'] = 200;
+
+    for (char symbol = 'a'; symbol != 'e'; symbol++) {
+        std_it2 = std_map2.find(symbol);
+        ft_it2 = ft_map2.find(symbol);
+        EXPECT_EQ(std_it2->first, ft_it2->first);
+        EXPECT_EQ(std_it2->second, ft_it2->second);
+    }
+
+    std_it2 = std_map2.find('n');
+    ft_it2 = ft_map2.find('n');
+    EXPECT_EQ(std_it2, std_map2.end());
+    EXPECT_EQ(ft_it2, ft_map2.end());
+}
+
+TEST(Map_Operations, count) {
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    std_map ['a']=101;
+    std_map ['c']=202;
+    std_map ['f']=303;
+    ft_map ['a']=101;
+    ft_map ['c']=202;
+    ft_map ['f']=303;
+
+    for (char symbol = 'a'; symbol < 'h'; symbol++)
+        EXPECT_EQ(std_map.count(symbol), ft_map.count(symbol));
+}
+
+TEST(Map_Operations, lower_bound) {
+    FAIL();
+
+}
+
+TEST(Map_Operations, upper_bound) {
+    FAIL();
+}
+
+TEST(Map_Operations, equal_range) {
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    ft_map['a']=10;
+    ft_map['b']=20;
+    ft_map['c']=30;
+    std_map['a']=10;
+    std_map['b']=20;
+    std_map['c']=30;
+
+    std::pair<std::map<char,int>::iterator,std::map<char,int>::iterator> std_ret;
+    std::pair<ft::map<char,int>::iterator, ft::map<char,int>::iterator> ft_ret;
+
+    //первыйы элемент
+    std_ret = std_map.equal_range('a');
+    ft_ret = ft_map.equal_range('a');
+
+    EXPECT_EQ(std_ret.first->first, ft_ret.first->first);
+    EXPECT_EQ(std_ret.first->second, ft_ret.first->second);
+
+    EXPECT_EQ(std_ret.second->first, ft_ret.second->first);
+    EXPECT_EQ(std_ret.second->second, ft_ret.second->second);
+
+
+    //элемент по середине
+    std_ret = std_map.equal_range('b');
+    ft_ret = ft_map.equal_range('b');
+
+    EXPECT_EQ(std_ret.first->first, ft_ret.first->first);
+    EXPECT_EQ(std_ret.first->second, ft_ret.first->second);
+
+    EXPECT_EQ(std_ret.second->first, ft_ret.second->first);
+    EXPECT_EQ(std_ret.second->second, ft_ret.second->second);
+
+    //последний элемент
+    std_ret = std_map.equal_range('c');
+    ft_ret = ft_map.equal_range('c');
+
+    EXPECT_EQ(std_ret.first->first, ft_ret.first->first);
+    EXPECT_EQ(std_ret.first->second, ft_ret.first->second);
+
+    EXPECT_EQ(std_ret.second, std_map.end());
+    EXPECT_EQ(ft_ret.second, ft_map.end());
+
+    //не существующий элемент
+    std_ret = std_map.equal_range('g');
+    ft_ret = ft_map.equal_range('g');
+
+    EXPECT_EQ(std_ret.first, std_map.end());
+    EXPECT_EQ(std_ret.first, std_map.end());
+
+    EXPECT_EQ(std_ret.second, std_map.end());
+    EXPECT_EQ(ft_ret.second, ft_map.end());
+}
+

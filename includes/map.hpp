@@ -26,7 +26,7 @@ public:
     typedef Compare                                     key_compare;
     class   value_compare : public std::binary_function<value_type, value_type, bool>
     {
-    protected:
+    public:
         Compare comp;
         value_compare (Compare c) : comp(c) {}  // constructed with map's comparison object
     public:
@@ -401,7 +401,7 @@ public:
     size_type               size()      const   { return this->_size; }
     size_type               max_size()  const   { return std::numeric_limits<size_type>::max()/ sizeof(map<Key, T, Compare, Alloc>); }
 /* Element access */
-    mapped_type& operator[] (const key_type& k) { return ((*((this->insert(make_pair(k,mapped_type()))).first)).second); }
+    mapped_type& operator[] (const key_type& k) { return (*((this->insert(std::make_pair(k,mapped_type()))).first)).second; }
 
 /* Modifiers */
 //    single element (1)
@@ -439,17 +439,97 @@ public:
     }
 
 //    (1)
-    void erase (iterator position) {
-
-    }
+//    void erase (iterator position) {
+//
+//    }
 //    (2)
-    size_type erase (const key_type& k);
+//    size_type erase (const key_type& k) {
+//
+//    }
 //    (3)
-    void erase (iterator first, iterator last);
+//    void erase (iterator first, iterator last);
+
+    void swap (map& x) {
+        allocator_rebind_type 	alloc_rebindTemp = _alloc_rebind;
+        _alloc_rebind = x._alloc_rebind;
+        x._alloc_rebind = alloc_rebindTemp;
+
+        allocator_type          allocTemp = _alloc;
+        _alloc = x._alloc;
+        x._alloc = allocTemp;
+
+        t_node                  *minNodeTemp = _minNode;
+        _minNode = x._minNode;
+        x._minNode = minNodeTemp;
+
+        t_node                  *maxNodeTemp = _maxNode;
+        _maxNode = x._maxNode;
+        x._maxNode = maxNodeTemp;
+
+        t_node                  *rootNodeTemp = _rootNode;
+        _rootNode = x._rootNode;
+        x._rootNode = rootNodeTemp;
+
+        t_node                  *endNodeTemp = _endNode;
+        _endNode = x._endNode;
+        x._endNode = endNodeTemp;
+
+        t_node                  *beginNodeTemp = _beginNode;
+        _beginNode = x._beginNode;
+        x._beginNode = beginNodeTemp;
+
+        size_type				sizeTemp = _size;
+        _size = x._size;
+        x._size = sizeTemp;
+
+        key_compare             compareTemp = _compare;
+        _compare = x._compare;
+        x._compare = compareTemp;
+    }
+
+
+/* Observers */
+    key_compare     key_comp()      const   { return _compare; }
+    value_compare   value_comp()    const   { return value_compare(_compare); };
+
+
+/* Operations */
+    iterator        find (const key_type& k) {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return iterator(node);
+        return map::end();
+    }
+    const_iterator  find (const key_type& k) const {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return const_iterator(node);
+        return map::end();
+    }
+
+    size_type       count (const key_type& k) const {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return 1;
+        return 0;
+    }
+
+//    std::pair<const_iterator,const_iterator> equal_range (const key_type& k) const;
+    std::pair<iterator,iterator>             equal_range (const key_type& k) {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return std::pair<iterator,iterator>(iterator(node), ++iterator(node));
+        return std::pair<iterator,iterator>(end(), end());
+    }
+
 
 /* Additional functions */
 private:
-    void _changesAfterInsert_case1(t_node *node)
+    void        _changesAfterInsert_case1(t_node *node)
     {
         // если корень, то цвет должен быть черным
         if (node->parent == NULL)
@@ -458,7 +538,7 @@ private:
             _changesAfterInsert_case2(node);
     }
 
-    void _changesAfterInsert_case2(t_node *node)
+    void        _changesAfterInsert_case2(t_node *node)
     {
         // если предок черный, то все норм
         if (node->parent->color == BLACK)
@@ -467,7 +547,7 @@ private:
             _changesAfterInsert_case3(node);
     }
 
-    void _changesAfterInsert_case3(t_node *node) {
+    void        _changesAfterInsert_case3(t_node *node) {
         t_node *uncleNode = _getUncle(node);
         t_node *grandparent;
 
@@ -483,7 +563,7 @@ private:
             _changesAfterInsert_case4(node);
     }
 
-    void _changesAfterInsert_case4(t_node *node)
+    void        _changesAfterInsert_case4(t_node *node)
     {
         //сюда программа проваливается, если родитель красный, а дядя черный
         t_node *grandparent = _getGrandparent(node);
@@ -501,7 +581,7 @@ private:
         _changesAfterInsert_case5(node);
     }
 
-    void _changesAfterInsert_case5(t_node *node)
+    void        _changesAfterInsert_case5(t_node *node)
     {
         /* Родитель P является красным, но дядя U — чёрный, текущий узел N — левый потомок P и P — левый потомок G.
         В этом случае выполняется поворот дерева на G. В результате получается дерево, в котором бывший родитель P
@@ -518,7 +598,7 @@ private:
             _rotate_left(grandparent);
     }
 
-    bool _searchWhereToInsert(const value_type& val, t_node **node) {
+    bool        _searchWhereToInsert(const value_type& val, t_node **node) {
         bool        rightOrEqual;
         t_node      *temp_root = _rootNode;
         t_node      *temp_parent;
@@ -546,14 +626,14 @@ private:
         return rightOrEqual;
     }
 
-    t_node * _getGrandparent(t_node *node) {
+    t_node      *_getGrandparent(t_node *node) {
         if (node && node->parent)
             return node->parent->parent;
         else
             return nullptr;
     }
 
-    t_node * _getUncle(t_node *node) {
+    t_node      *_getUncle(t_node *node) {
         t_node *grandparent = _getGrandparent(node);
         if (!grandparent)
             return nullptr;
@@ -563,7 +643,7 @@ private:
             return grandparent->left;
     }
 
-    void _rotate_left(t_node *node) {
+    void        _rotate_left(t_node *node) {
         t_node *pivot = node->right;
 
         pivot->parent = node->parent; // тут возможно, что pivot становится корнем дерева
@@ -584,7 +664,7 @@ private:
         pivot->left = node;
     }
 
-    void _rotate_right(t_node *node) {
+    void        _rotate_right(t_node *node) {
         t_node *pivot = node->left;
 
         pivot->parent = node->parent; // тут возможно, что pivot становится корнем дерева
@@ -683,7 +763,7 @@ private:
         return newNode;
     }
 
-    void _deleteNode(t_node *node) {
+    void        _deleteNode(t_node *node) {
 //        _alloc.destroy(node->color);
 //        _alloc.deallocate(node->color, 1);
 //        delete node->color;
@@ -696,10 +776,37 @@ private:
 //        _alloc.deallocate(node->color, 1);
     }
 
-    void _clear() {
+    void        _clear() {
 
     }
 
+    bool        _find_key(const key_type& k, t_node **node) const {
+        bool        rightOrEqual;
+        t_node      *temp_root = _rootNode;
+        t_node      *temp_parent;
+        value_type  *temp_key_value;
+
+        while (temp_root && temp_root->key_value) {
+            temp_key_value = temp_root->key_value;
+            if (!_compare(k, temp_key_value->first) && !_compare(temp_key_value->first, k)) {
+                *node = temp_root;
+                return true;
+            }
+            else if (_compare(k, temp_key_value->first)) {
+                temp_parent = temp_root;
+                rightOrEqual = false;
+                temp_root = temp_root->left;
+            }
+            else {
+                temp_parent = temp_root;
+                rightOrEqual = true;
+                temp_root = temp_root->right;
+            }
+        }
+
+        *node = temp_parent;
+        return rightOrEqual;
+    }
 };
 
 }
