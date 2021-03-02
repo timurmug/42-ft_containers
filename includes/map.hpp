@@ -517,7 +517,43 @@ public:
         return 0;
     }
 
-//    std::pair<const_iterator,const_iterator> equal_range (const key_type& k) const;
+    iterator lower_bound(const key_type& k) {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return iterator(node);
+        return iterator(end());
+    }
+    const_iterator lower_bound (const key_type& k) const {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return const_iterator(node);
+        return const_iterator(end());
+    }
+
+    iterator upper_bound (const key_type& k) {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return ++iterator(node);
+        return iterator(end());
+    }
+    const_iterator upper_bound (const key_type& k) const {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return ++const_iterator(node);
+        return const_iterator(end());
+    }
+
+    std::pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
+        t_node *node;
+        bool rightOrEqual = _find_key(k, &node);
+        if (rightOrEqual && node->key_value->first == k)
+            return std::pair<const_iterator,const_iterator>(const_iterator(node), ++const_iterator(node));
+        return std::pair<const_iterator,const_iterator>(end(), end());
+    }
     std::pair<iterator,iterator>             equal_range (const key_type& k) {
         t_node *node;
         bool rightOrEqual = _find_key(k, &node);

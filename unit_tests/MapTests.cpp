@@ -854,12 +854,102 @@ TEST(Map_Operations, count) {
 }
 
 TEST(Map_Operations, lower_bound) {
-    FAIL();
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    ft_map['a']=10;
+    ft_map['b']=20;
+    ft_map['c']=30;
+    ft_map['d']=30;
+    ft_map['e']=30;
+    std_map['a']=10;
+    std_map['b']=20;
+    std_map['c']=30;
+    std_map['d']=30;
+    std_map['e']=30;
+
+    std::map<char,int>::iterator std_ret;
+    ft::map<char,int>::iterator ft_ret;
+
+    //первый элемент
+    std_ret = std_map.lower_bound('a');
+    ft_ret = ft_map.lower_bound('a');
+    EXPECT_EQ(std_ret->first, ft_ret->first);
+    EXPECT_EQ(std_ret->second, ft_ret->second);
+
+    //элемент по середине
+    std_ret = std_map.lower_bound('b');
+    ft_ret = ft_map.lower_bound('b');
+    EXPECT_EQ(std_ret->first, ft_ret->first);
+    EXPECT_EQ(std_ret->second, ft_ret->second);
+
+    //последний элемент
+    std_ret = std_map.lower_bound('e');
+    ft_ret = ft_map.lower_bound('e');
+    EXPECT_EQ(std_ret->first, ft_ret->first);
+    EXPECT_EQ(std_ret->second, ft_ret->second);
+
+    //не существующий элемент
+    std_ret = std_map.lower_bound('q');
+    ft_ret = ft_map.lower_bound('q');
+    EXPECT_EQ(std_ret, std_map.end());
+    EXPECT_EQ(ft_ret, ft_map.end());
+
+    //const
+    std::map<char,int>::const_iterator std_ret2 = std_map.lower_bound('b');
+    ft::map<char,int>::const_iterator ft_ret2= ft_map.lower_bound('b');
+    EXPECT_EQ(std_ret2->first, ft_ret2->first);
+    EXPECT_EQ(std_ret2->second, ft_ret2->second);
 
 }
 
 TEST(Map_Operations, upper_bound) {
-    FAIL();
+    std::map<char,int> std_map;
+    ft::map<char,int> ft_map;
+
+    ft_map['a']=10;
+    ft_map['b']=20;
+    ft_map['c']=30;
+    ft_map['d']=30;
+    ft_map['e']=30;
+    std_map['a']=10;
+    std_map['b']=20;
+    std_map['c']=30;
+    std_map['d']=30;
+    std_map['e']=30;
+
+    std::map<char,int>::iterator std_ret;
+    ft::map<char,int>::iterator ft_ret;
+
+    //первый элемент
+    std_ret = std_map.upper_bound('a');
+    ft_ret = ft_map.upper_bound('a');
+    EXPECT_EQ(std_ret->first, ft_ret->first);
+    EXPECT_EQ(std_ret->second, ft_ret->second);
+
+    //элемент по середине
+    std_ret = std_map.upper_bound('b');
+    ft_ret = ft_map.upper_bound('b');
+    EXPECT_EQ(std_ret->first, ft_ret->first);
+    EXPECT_EQ(std_ret->second, ft_ret->second);
+
+    //последний элемент
+    std_ret = std_map.upper_bound('e');
+    ft_ret = ft_map.upper_bound('e');
+    EXPECT_EQ(std_ret, std_map.end());
+    EXPECT_EQ(ft_ret, ft_map.end());
+
+    //не существующий элемент
+    std_ret = std_map.upper_bound('q');
+    ft_ret = ft_map.upper_bound('q');
+    EXPECT_EQ(std_ret, std_map.end());
+    EXPECT_EQ(ft_ret, ft_map.end());
+
+    //const
+    std::map<char,int>::const_iterator std_ret2 = std_map.upper_bound('b');
+    ft::map<char,int>::const_iterator ft_ret2 = ft_map.upper_bound('b');
+    EXPECT_EQ(std_ret2->first, ft_ret2->first);
+    EXPECT_EQ(std_ret2->second, ft_ret2->second);
 }
 
 TEST(Map_Operations, equal_range) {
@@ -916,5 +1006,19 @@ TEST(Map_Operations, equal_range) {
 
     EXPECT_EQ(std_ret.second, std_map.end());
     EXPECT_EQ(ft_ret.second, ft_map.end());
+
+
+    // const
+    std::pair<std::map<char,int>::const_iterator,std::map<char,int>::const_iterator> std_ret2;
+    std::pair<ft::map<char,int>::const_iterator, ft::map<char,int>::const_iterator> ft_ret2;
+
+    std_ret2 = std_map.equal_range('b');
+    ft_ret2 = ft_map.equal_range('b');
+
+    EXPECT_EQ(std_ret2.first->first, ft_ret2.first->first);
+    EXPECT_EQ(std_ret2.first->second, ft_ret2.first->second);
+
+    EXPECT_EQ(std_ret2.second->first, ft_ret2.second->first);
+    EXPECT_EQ(std_ret2.second->second, ft_ret2.second->second);
 }
 
