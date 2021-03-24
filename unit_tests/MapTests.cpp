@@ -132,30 +132,30 @@ TEST(Map_Base, empty_constructor1) {
     EXPECT_EQ(std_map.size(), ft_map.size());
     checkTwoMaps(std_map, ft_map);
 
-    std_res = std_map.insert ( std::pair<int, std::string>(10, "value" ) );
-    ft_res = ft_map.insert ( std::pair<int, std::string>(10, "value" ) );
-    EXPECT_EQ(std_map.size(), ft_map.size());
-
-    EXPECT_EQ(std_res.first->first, ft_res.first->first);
-    EXPECT_EQ(std_res.first->second, ft_res.first->second);
-    EXPECT_EQ(std_res.second, ft_res.second);
-
-    srand(time(0));
-    int n = 10;
-    int key;
-    std::string value;
-    while (n--) {
-        key = getRandomInt();
-        value = getRandomStr();
-        std_res = std_map.insert ( std::pair<int, std::string>(key, value ) );
-        ft_res = ft_map.insert ( std::pair<int, std::string>(key, value ) );
-        EXPECT_EQ(std_map.size(), ft_map.size());
-
-        EXPECT_EQ(std_res.first->first, ft_res.first->first);
-        EXPECT_EQ(std_res.first->second, ft_res.first->second);
-        EXPECT_EQ(std_res.second, ft_res.second);
-    }
-    checkTwoMaps(std_map, ft_map);
+//    std_res = std_map.insert ( std::pair<int, std::string>(10, "value" ) );
+//    ft_res = ft_map.insert ( std::pair<int, std::string>(10, "value" ) );
+//    EXPECT_EQ(std_map.size(), ft_map.size());
+//
+//    EXPECT_EQ(std_res.first->first, ft_res.first->first);
+//    EXPECT_EQ(std_res.first->second, ft_res.first->second);
+//    EXPECT_EQ(std_res.second, ft_res.second);
+//
+//    srand(time(0));
+//    int n = 10;
+//    int key;
+//    std::string value;
+//    while (n--) {
+//        key = getRandomInt();
+//        value = getRandomStr();
+//        std_res = std_map.insert ( std::pair<int, std::string>(key, value ) );
+//        ft_res = ft_map.insert ( std::pair<int, std::string>(key, value ) );
+//        EXPECT_EQ(std_map.size(), ft_map.size());
+//
+//        EXPECT_EQ(std_res.first->first, ft_res.first->first);
+//        EXPECT_EQ(std_res.first->second, ft_res.first->second);
+//        EXPECT_EQ(std_res.second, ft_res.second);
+//    }
+//    checkTwoMaps(std_map, ft_map);
 }
 
 TEST(Map_Base, empty_constructor2) {
@@ -583,18 +583,22 @@ TEST(Map_Capacity_Element_Access, empty) {
     ft_res = ft_map.insert ( std::pair<int, std::string>(10, "value" ) );
     EXPECT_EQ(std_map.size(), ft_map.size());
 
-    FAIL();
-    std::map<char,int> mymap;
+    std::map<char,int> std_map2;
+    ft::map<char,int> ft_map2;
 
-    mymap['a']=10;
-    mymap['b']=20;
-    mymap['c']=30;
+    std_map2['a']=10;
+    std_map2['b']=20;
+    std_map2['c']=30;
+    ft_map2['a']=10;
+    ft_map2['b']=20;
+    ft_map2['c']=30;
 
-    while (!mymap.empty())
-    {
-        std::cout << mymap.begin()->first << " => " << mymap.begin()->second << '\n';
-        mymap.erase(mymap.begin());
+    while (!std_map2.empty()) {
+        checkTwoMaps(std_map2, ft_map2);
+        std_map2.erase(std_map2.begin());
+        ft_map2.erase(ft_map2.begin());
     }
+    EXPECT_EQ(std_map2.empty(), ft_map2.empty());
 }
 
 TEST(Map_Capacity_Element_Access, size) {
@@ -692,6 +696,22 @@ TEST(Map_Modifiers, insert) {
 }
 
 TEST(Map_Modifiers, erase) {
+    std::map<char,int>              std_map;
+    std::map<char,int>::iterator    std_it;
+
+    std::cout << std_map.erase('q') << std::endl;
+
+//    std_map['a']=10;
+//    std_map['a']=10;
+//    std_map['b']=20;
+//    std_map['c']=30;
+//    std_map['d']=40;
+//    std_map['e']=50;
+//    std_map['f']=60;
+
+    std::cout << std_map.erase('q') << std::endl;
+    std::cout << std_map.erase('a') << std::endl;
+
     FAIL();
 }
 

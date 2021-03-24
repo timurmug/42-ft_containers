@@ -60,8 +60,8 @@ private:
     }						t_node;
 
 /* Local variables */
-    #define RED     0
-    #define BLACK   1
+    #define RED     1
+    #define BLACK   0
 
     typedef typename allocator_type::template rebind<t_node>::other allocator_rebind_type;
     allocator_rebind_type 	_alloc_rebind;
@@ -101,7 +101,7 @@ public:
 /* Assignation operator */
     map& operator=(const map& x) {
         if (this != &x) {
-            _clear();
+            clear();
             _alloc_rebind = x._alloc_rebind;
             _alloc = x._alloc;
             _size = 0;
@@ -118,7 +118,7 @@ public:
 
 /* Destructor */
     ~map() {
-        _clear();
+        clear();
     }
 
 /* Iterators classes */
@@ -385,15 +385,15 @@ public:
     };
 
 /* Iterators */
-    iterator 				begin()             { return iterator(_minNode); }
-    const_iterator 		    begin()     const   { return const_iterator(_minNode); }
-    iterator				end()               { if (_size) return iterator(_endNode); return begin(); }
-    const_iterator			end()       const   { if (_size) return const_iterator(_endNode); return begin(); }
+    iterator 				begin()             { return (!_size) ? iterator(_endNode) : iterator(_beginNode->parent);}
+    const_iterator 		    begin()     const   { return (!_size) ? const_iterator(_endNode) : const_iterator(_beginNode->parent); }
+    iterator				end()               { return iterator(_endNode); }
+    const_iterator			end()       const   { return const_iterator(_endNode); }
 
-    reverse_iterator 		rbegin()            { return reverse_iterator(_maxNode); }
-    reverse_iterator		rend()              { if (_size) return reverse_iterator(_beginNode); return rbegin(); }
-    const_reverse_iterator 	rbegin()    const   { return const_reverse_iterator(_maxNode); }
-    const_reverse_iterator	rend()      const   { if (_size) return const_reverse_iterator(_beginNode); return rbegin(); }
+    reverse_iterator		rbegin()            { return (!_size) ? reverse_iterator(_beginNode) : reverse_iterator(_endNode->parent); }
+    const_reverse_iterator	rbegin()    const   { return (!_size) ? const_reverse_iterator(_beginNode) : const_reverse_iterator(_endNode->parent); }
+    reverse_iterator		rend()              { return reverse_iterator(_beginNode); }
+    const_reverse_iterator	rend()      const   { return const_reverse_iterator(_beginNode); }
 
 
 /* Capacity */
@@ -439,15 +439,78 @@ public:
     }
 
 //    (1)
-//    void erase (iterator position) {
-//
-//    }
+    void erase (iterator position) {
+        erase(position->first);
+    }
 //    (2)
-//    size_type erase (const key_type& k) {
+    size_type erase (const key_type& k) {
+        if (_size == 0 || find(k) == end())
+            return 0;
+        _eraseNode(_rootNode, k);
+//        t_node *p = _rootNode;
+//        while (!_compare(k, p->key_value->first) && !_compare(p->key_value->first, k)) {
+//            if (_compare(p->key_value->first, k))
+//                p = p->right;
+//            else
+//                p = p->left;
+//        }
+//        if (!p->left && !p->right) { // нет детей
+//            if (p == _rootNode)
+//                _rootNode = nullptr; // TODO delete нужен
+//            else {
+//                // TODO delete нужен
+//                if (p->parent->left == p)
+//                    p->parent->left = nullptr;
+//                else
+//                    p->parent->right = nullptr;
+//            }
+//            return 1;
+//        }
 //
+//        t_node *y = nullptr;
+//        t_node *q = nullptr;
+//        if (!p->left || !p->right) { // один ребенок
+//            // TODO delete нужен
+//            if (p->parent->left == p)
+//                p->parent->left = (p->left) ? p->left : p->right;
+//            else
+//                p->parent->right = (p->right) ? p->right : p->left;
+//        }
+//        else { // два ребенка
+//            // TODO delete нужен
+//            y = (++iterator(p).getNodePtr()); // у нее нет левого ребенка
+//            if (y->right)
+//                y->right->parent = y->parent;
+//            if (y == _rootNode)
+//                _rootNode = y->right;
+//            else
+//                y->parent =
+//
+//        }
+//
+//        if (y != p) {
+//            p->color = y->color;
+//            p->key_value->first = y->first;
+//        }
+//        if (y->color == BLACK)
+////            fixDeleting(q)
+
+        return 1;
+    }
+
+//    t_node *				_findMaxNode(t_node* node) {
+//        if (node->right)
+//            return _findMaxNode(node->right);
+//        return node;
 //    }
+
+
+
 //    (3)
-//    void erase (iterator first, iterator last);
+    void erase (iterator first, iterator last) {
+        while (first != last)
+            erase(first++);
+    }
 
     void swap (map& x) {
         allocator_rebind_type 	alloc_rebindTemp = _alloc_rebind;
@@ -487,6 +550,9 @@ public:
         x._compare = compareTemp;
     }
 
+    void clear() {
+
+    }
 
 /* Observers */
     key_compare     key_comp()      const   { return _compare; }
@@ -506,7 +572,7 @@ public:
         bool rightOrEqual = _find_key(k, &node);
         if (rightOrEqual && node->key_value->first == k)
             return const_iterator(node);
-        return map::end();
+        return end();
     }
 
     size_type       count (const key_type& k) const {
@@ -799,21 +865,171 @@ private:
         return newNode;
     }
 
-    void        _deleteNode(t_node *node) {
-//        _alloc.destroy(node->color);
-//        _alloc.deallocate(node->color, 1);
-//        delete node->color;
+    void 		_deleteNode(t_node * node) {
         _alloc.destroy(node->key_value);
         _alloc.deallocate(node->key_value, 1);
-        _alloc_rebind.destroy(node);
-        node = nullptr;
-
-//        _alloc_rebind.deallocate(node, 1);
-//        _alloc.deallocate(node->color, 1);
+        _alloc_rebind.deallocate(node, 1);
+        --_size;
     }
 
-    void        _clear() {
+    /* for erase */
+    bool 					_isRedNode(t_node* node) {
+        if (!node)
+            return BLACK;
+        return node->color == RED;
+    }
 
+    t_node *				_findMinNode(t_node* node) {
+        if (node->left)
+            return _findMinNode(node->left);
+        return node;
+    }
+
+    void 					_linkLeft(t_node * parent, t_node * left) {
+        parent->left = left;
+        if (left)
+            left->parent = parent;
+    };
+
+    void 					_linkRight(t_node * parent, t_node * right) {
+        parent->right = right;
+        if (right)
+            right->parent = parent;
+    };
+
+    void        _changeColors(t_node *node) {
+        if (node->left && node->left != _beginNode)
+            node->left->color = !node->left->color;
+        if (node->right && node->right != _endNode)
+            node->right->color = !node->right->color;
+        if (node && node != _rootNode)
+            node->color = !node->color;
+    }
+
+    t_node *    _rotate_left_erase(t_node *node) {
+        t_node* tmp = node->right;
+
+        tmp->parent = nullptr;
+        if (node->parent) {
+            if (node->parent->left == node)
+                _linkLeft(node->parent, tmp);
+            else
+                _linkRight(node->parent, tmp);
+        }
+        else
+            tmp->parent = node->parent;
+
+        _linkRight(node, tmp->left);
+        _linkLeft(tmp, node);
+        if (node == _rootNode)
+            _rootNode = tmp;
+
+        tmp->color = node->color;
+        node->color = RED;
+        return tmp;
+    }
+
+    t_node*     _rotate_right_erase(t_node * node) {
+        t_node* tmp = node->left;
+
+        tmp->parent = nullptr;
+        if (node->parent) {
+            if (node->parent->left == node)
+                _linkLeft(node->parent, tmp);
+            else
+                _linkRight(node->parent, tmp);
+        }
+        else
+            tmp->parent = node->parent;
+
+        _linkLeft(node, tmp->right);
+        _linkRight(tmp, node);
+        if (node == _rootNode)
+            _rootNode = tmp;
+
+        tmp->color = node->color;
+        node->color = RED;
+        return tmp;
+    }
+
+    t_node *    _moveRedLeft(t_node * node) {
+        _changeColors(node);
+        if (node->right && _isRedNode(node->right->left)) {
+            node->right = _rotate_right_erase(node->right);
+            node = _rotate_left_erase(node);
+            _changeColors(node);
+        }
+        return node;
+    }
+
+    t_node *	_moveRedRight(t_node * node) {
+        _changeColors(node);
+        if (node->left && _isRedNode(node->left->left)) {
+            node = _rotate_right_erase(node);
+            _changeColors(node);
+        }
+        return node;
+    }
+
+    t_node *    _balance(t_node * node) {
+        if (_isRedNode(node->right))
+            node = _rotate_left_erase(node);
+        if (_isRedNode(node->left) && _isRedNode(node->left->left))
+            node = _rotate_right_erase(node);
+        if (_isRedNode(node->left) && _isRedNode(node->right))
+            _changeColors(node);
+        return node;
+    }
+
+    t_node *    _eraseNode(t_node *node, const key_type& k) {
+        if (node == nullptr)
+            return nullptr;
+        int cmp_result = _compare(k, node->key_value->first) + _compare(node->key_value->first, k) * 2;
+        if (cmp_result == 1) {  //LEFT
+            if (!_isRedNode(node->left) && !_isRedNode(node->left->left))
+                node = _moveRedLeft(node);
+            _linkLeft(node, _eraseNode(node->left, k));
+        }
+        else {                  // RIGHT or EQUAL
+            if (_isRedNode(node->left)) {
+                node = _rotate_right_erase(node);
+                _linkRight(node, _eraseNode(node->right, k));
+                return _balance(node);
+            }
+            if (cmp_result != 2 && (node->right == _endNode || node->right == nullptr)) {
+                t_node *tmp = (!node->left && node->right == _endNode) ? node->right : node->left;
+                _deleteNode(node);
+                return tmp;
+            }
+            if (!_isRedNode(node->right) && node->right && !_isRedNode(node->right->left)) {
+                node = _moveRedRight(node);
+            }
+            if (!_compare(node->key_value->first, k)) {
+                t_node *min = _findMinNode(node->right);
+                if (node == _rootNode)
+                    _rootNode = min;
+                if (min->parent != node) {
+                    _linkLeft(min->parent, min->right);
+                    _linkRight(min, node->right);
+                }
+                if (node->left == _beginNode) {
+                    node->left->parent = min;
+                    min->left = node->left;
+                } else
+                    _linkLeft(min, node->left);
+                min->parent = nullptr;
+                if (node->parent) {
+                    if (node->parent->left == node)
+                        _linkLeft(node->parent, min);
+                    else
+                        _linkRight(node->parent, min);
+                }
+                _deleteNode(node);
+                node = min;
+            } else
+                _linkRight(node, _eraseNode(node->right, k));
+        }
+        return _balance(node);
     }
 
     bool        _find_key(const key_type& k, t_node **node) const {
@@ -843,6 +1059,13 @@ private:
         *node = temp_parent;
         return rightOrEqual;
     }
+
+//    t_node      *_find_max(t_node *node) {
+//        t_node* temp = node;
+//        while (temp&& temp->right)
+//            temp = temp->right;
+//        return temp;
+//    }
 };
 
 }
