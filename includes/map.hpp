@@ -2,7 +2,6 @@
 #define MAP_HPP
 
 #include <memory>
-#include <iostream>
 #include "stack.hpp"
 
 template<bool Cond, class T = void>
@@ -12,7 +11,7 @@ struct enable_if<true, T> { typedef T type; };
 
 namespace ft {
 
-template < class Key,                                               // map::key_type
+template < class Key,                                               // mapR:key_type
         class T,                                                    // map::mapped_type
         class Compare = std::less<Key>,                             // map::key_compare
         class Alloc = std::allocator<std::pair<const Key,T> > >     // map::allocator_type
@@ -67,10 +66,7 @@ private:
     allocator_rebind_type 	_alloc_rebind;
     allocator_type          _alloc;
 
-    t_node                  *_minNode;
-    t_node                  *_maxNode;
     t_node                  *_rootNode;
-
     t_node                  *_endNode;
     t_node                  *_beginNode;
 
@@ -88,13 +84,14 @@ public:
          const key_compare& comp = key_compare(),
          const allocator_type& alloc = allocator_type(),
          typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) : _alloc(alloc), _size(0), _compare(comp) {
-        while (first != last) {
-            insert(*first);
-            first++;
-        }
+//        while (first != last) {
+//            insert(*first);
+//            first++;
+//        }
+        insert(first, last);
     }
 //    copy (3)
-    map (const map& x)  {
+    map (const map& x)  : _size(0) {
         *this = x;
     }
 
@@ -119,6 +116,8 @@ public:
 /* Destructor */
     ~map() {
         clear();
+        _alloc_rebind.deallocate(_endNode, 1);
+        _alloc_rebind.deallocate(_beginNode, 1);
     }
 
 /* Iterators classes */
@@ -385,21 +384,21 @@ public:
     };
 
 /* Iterators */
-    iterator 				begin()             { return (!_size) ? iterator(_endNode) : iterator(_beginNode->parent);}
-    const_iterator 		    begin()     const   { return (!_size) ? const_iterator(_endNode) : const_iterator(_beginNode->parent); }
+    iterator 				begin()             { return (_size) ? iterator(_beginNode->parent) : iterator(_endNode); }
+    const_iterator 		    begin()     const   { return (_size) ? const_iterator(_beginNode->parent) : const_iterator(_endNode); }
     iterator				end()               { return iterator(_endNode); }
     const_iterator			end()       const   { return const_iterator(_endNode); }
 
-    reverse_iterator		rbegin()            { return (!_size) ? reverse_iterator(_beginNode) : reverse_iterator(_endNode->parent); }
-    const_reverse_iterator	rbegin()    const   { return (!_size) ? const_reverse_iterator(_beginNode) : const_reverse_iterator(_endNode->parent); }
+    reverse_iterator		rbegin()            { return (_size) ? reverse_iterator(_endNode->parent) : reverse_iterator(_beginNode); }
+    const_reverse_iterator	rbegin()    const   { return (_size) ? const_reverse_iterator(_endNode->parent) : const_reverse_iterator(_beginNode); }
     reverse_iterator		rend()              { return reverse_iterator(_beginNode); }
     const_reverse_iterator	rend()      const   { return const_reverse_iterator(_beginNode); }
 
 
 /* Capacity */
-    bool                    empty()     const   { return (this->_size == 0); }
-    size_type               size()      const   { return this->_size; }
-    size_type               max_size()  const   { return std::numeric_limits<size_type>::max()/ sizeof(map<Key, T, Compare, Alloc>); }
+    bool                    empty()     const   { return (!_size); }
+    size_type               size()      const   { return _size; }
+    size_type               max_size()  const   { return std::numeric_limits<size_type>::max() / sizeof(map<Key, T, Compare, Alloc>); }
 /* Element access */
     mapped_type& operator[] (const key_type& k) { return (*((this->insert(std::make_pair(k,mapped_type()))).first)).second; }
 
@@ -444,72 +443,32 @@ public:
     }
 //    (2)
     size_type erase (const key_type& k) {
-        if (_size == 0 || find(k) == end())
+        t_node *nodeToErase;
+        if (!_size || !_rootNode)
             return 0;
-        _eraseNode(_rootNode, k);
-//        t_node *p = _rootNode;
-//        while (!_compare(k, p->key_value->first) && !_compare(p->key_value->first, k)) {
-//            if (_compare(p->key_value->first, k))
-//                p = p->right;
-//            else
-//                p = p->left;
-//        }
-//        if (!p->left && !p->right) { // нет детей
-//            if (p == _rootNode)
-//                _rootNode = nullptr; // TODO delete нужен
-//            else {
-//                // TODO delete нужен
-//                if (p->parent->left == p)
-//                    p->parent->left = nullptr;
-//                else
-//                    p->parent->right = nullptr;
-//            }
-//            return 1;
-//        }
-//
-//        t_node *y = nullptr;
-//        t_node *q = nullptr;
-//        if (!p->left || !p->right) { // один ребенок
-//            // TODO delete нужен
-//            if (p->parent->left == p)
-//                p->parent->left = (p->left) ? p->left : p->right;
-//            else
-//                p->parent->right = (p->right) ? p->right : p->left;
-//        }
-//        else { // два ребенка
-//            // TODO delete нужен
-//            y = (++iterator(p).getNodePtr()); // у нее нет левого ребенка
-//            if (y->right)
-//                y->right->parent = y->parent;
-//            if (y == _rootNode)
-//                _rootNode = y->right;
-//            else
-//                y->parent =
-//
-//        }
-//
-//        if (y != p) {
-//            p->color = y->color;
-//            p->key_value->first = y->first;
-//        }
-//        if (y->color == BLACK)
-////            fixDeleting(q)
+        bool isFind = _find_key(k, &nodeToErase);
+        if (!isFind || nodeToErase->key_value->first != k)
+            return 0;
 
+        if (_beginNode->parent)
+            _beginNode->parent->left = nullptr;
+        if (_endNode->parent)
+            _endNode->parent->right = nullptr;
+        _eraseAlgorithm(nodeToErase);
+        _setBeginEndNodes();
         return 1;
     }
-
-//    t_node *				_findMaxNode(t_node* node) {
-//        if (node->right)
-//            return _findMaxNode(node->right);
-//        return node;
-//    }
-
-
-
 //    (3)
     void erase (iterator first, iterator last) {
+
+        iterator tmp;
         while (first != last)
-            erase(first++);
+        {
+            tmp = first;
+            ++tmp;
+            erase(first);
+            first = tmp;
+        }
     }
 
     void swap (map& x) {
@@ -520,14 +479,6 @@ public:
         allocator_type          allocTemp = _alloc;
         _alloc = x._alloc;
         x._alloc = allocTemp;
-
-        t_node                  *minNodeTemp = _minNode;
-        _minNode = x._minNode;
-        x._minNode = minNodeTemp;
-
-        t_node                  *maxNodeTemp = _maxNode;
-        _maxNode = x._maxNode;
-        x._maxNode = maxNodeTemp;
 
         t_node                  *rootNodeTemp = _rootNode;
         _rootNode = x._rootNode;
@@ -551,7 +502,8 @@ public:
     }
 
     void clear() {
-
+        while (_size)
+            erase(begin());
     }
 
 /* Observers */
@@ -745,6 +697,28 @@ private:
             return grandparent->left;
     }
 
+    t_node      *_getBrother(t_node *node) {
+        if (node->parent == NULL)
+            return nullptr;
+        if (_isNodeLeftToParent(node))
+            return node->parent->right;
+        return node->parent->left;
+    }
+
+    t_node      *_getMinNode(t_node *node) {
+        if (node && node->left)
+            return _getMinNode(node->left);
+        return node;
+    }
+
+    t_node      *_getMaxNode(t_node *node) {
+        if (node && node->right)
+            return _getMaxNode(node->right);
+        return node;
+    }
+
+    bool        _isNodeLeftToParent(t_node *node) { return node == node->parent->left; }
+
     void        _rotate_left(t_node *node) {
         t_node *pivot = node->right;
 
@@ -806,43 +780,37 @@ private:
                 newNode = _initNewNode(val, parent, nullptr, nullptr);
         }
 
-        if (isright) {
+        if (isright)
             parent->right = newNode;
-            if (parent == _maxNode)
-                _maxNode = newNode;
-        }
-        else {
+        else
             parent->left = newNode;
-            if (parent == _minNode)
-                _minNode = newNode;
-        }
         return newNode;
     }
 
     void        _initRoot(const value_type& val) {
         /* init root */
-         _rootNode = _maxNode = _minNode = _initNewNode(val, nullptr, nullptr, nullptr);
+         _rootNode = _initNewNode(val, nullptr, nullptr, nullptr);
          _rootNode->color = BLACK;
 
         /* init _endNode */
          _endNode = _alloc_rebind.allocate(1);
-         _endNode->parent = _maxNode;
-         _endNode->left = nullptr;
+        _endNode->parent = _rootNode;
+        _endNode->left = nullptr;
          _endNode->right = nullptr;
 
          _endNode->key_value = nullptr;
          _endNode->color = BLACK;
-         _maxNode->right = _endNode;
+        _rootNode->right = _endNode;
 
         /* init _beginNode */
         _beginNode = _alloc_rebind.allocate(1);
-        _beginNode->parent = _minNode;
+        _beginNode->parent = _rootNode;
         _beginNode->left = nullptr;
         _beginNode->right = nullptr;
 
         _beginNode->key_value = nullptr;
         _beginNode->color = BLACK;
-        _minNode->left = _beginNode;
+        _rootNode->left = _beginNode;
     }
 
     t_node *    _initNewNode(const value_type& val, t_node *parentNode, t_node *leftNode, t_node *rightNode) {
@@ -865,172 +833,207 @@ private:
         return newNode;
     }
 
-    void 		_deleteNode(t_node * node) {
+    void 		_deallocateNode(t_node *node) {
         _alloc.destroy(node->key_value);
         _alloc.deallocate(node->key_value, 1);
         _alloc_rebind.deallocate(node, 1);
-        --_size;
+        _size--;
     }
 
-    /* for erase */
-    bool 					_isRedNode(t_node* node) {
-        if (!node)
-            return BLACK;
-        return node->color == RED;
+    //////////////// erase
+
+    void        _setBeginEndNodes() {
+        t_node *tmp = _getMaxNode(_rootNode);
+        _linkNodes(tmp, _endNode, 1);
+        tmp = _getMinNode(_rootNode);
+        _linkNodes(tmp, _beginNode, 0);
     }
 
-    t_node *				_findMinNode(t_node* node) {
-        if (node->left)
-            return _findMinNode(node->left);
-        return node;
-    }
-
-    void 					_linkLeft(t_node * parent, t_node * left) {
-        parent->left = left;
-        if (left)
-            left->parent = parent;
-    };
-
-    void 					_linkRight(t_node * parent, t_node * right) {
-        parent->right = right;
-        if (right)
-            right->parent = parent;
-    };
-
-    void        _changeColors(t_node *node) {
-        if (node->left && node->left != _beginNode)
-            node->left->color = !node->left->color;
-        if (node->right && node->right != _endNode)
-            node->right->color = !node->right->color;
-        if (node && node != _rootNode)
-            node->color = !node->color;
-    }
-
-    t_node *    _rotate_left_erase(t_node *node) {
-        t_node* tmp = node->right;
-
-        tmp->parent = nullptr;
-        if (node->parent) {
-            if (node->parent->left == node)
-                _linkLeft(node->parent, tmp);
-            else
-                _linkRight(node->parent, tmp);
-        }
+    void        _linkNodes(t_node *parent, t_node *node, bool isRight) {
+        if (!parent)
+            return;
+        if (isRight)
+            parent->right = node;
         else
-            tmp->parent = node->parent;
-
-        _linkRight(node, tmp->left);
-        _linkLeft(tmp, node);
-        if (node == _rootNode)
-            _rootNode = tmp;
-
-        tmp->color = node->color;
-        node->color = RED;
-        return tmp;
+            parent->left = node;
+        if (node)
+            node->parent = parent;
     }
 
-    t_node*     _rotate_right_erase(t_node * node) {
-        t_node* tmp = node->left;
-
-        tmp->parent = nullptr;
-        if (node->parent) {
-            if (node->parent->left == node)
-                _linkLeft(node->parent, tmp);
-            else
-                _linkRight(node->parent, tmp);
+    t_node*     _getNodeToReplace(t_node *node) {
+        if (node->left && node->right) {
+            t_node *temp = node->right;
+            while (temp->left)
+                temp = temp->left;
+            return temp;
         }
-        else
-            tmp->parent = node->parent;
-
-        _linkLeft(node, tmp->right);
-        _linkRight(tmp, node);
-        if (node == _rootNode)
-            _rootNode = tmp;
-
-        tmp->color = node->color;
-        node->color = RED;
-        return tmp;
-    }
-
-    t_node *    _moveRedLeft(t_node * node) {
-        _changeColors(node);
-        if (node->right && _isRedNode(node->right->left)) {
-            node->right = _rotate_right_erase(node->right);
-            node = _rotate_left_erase(node);
-            _changeColors(node);
-        }
-        return node;
-    }
-
-    t_node *	_moveRedRight(t_node * node) {
-        _changeColors(node);
-        if (node->left && _isRedNode(node->left->left)) {
-            node = _rotate_right_erase(node);
-            _changeColors(node);
-        }
-        return node;
-    }
-
-    t_node *    _balance(t_node * node) {
-        if (_isRedNode(node->right))
-            node = _rotate_left_erase(node);
-        if (_isRedNode(node->left) && _isRedNode(node->left->left))
-            node = _rotate_right_erase(node);
-        if (_isRedNode(node->left) && _isRedNode(node->right))
-            _changeColors(node);
-        return node;
-    }
-
-    t_node *    _eraseNode(t_node *node, const key_type& k) {
-        if (node == nullptr)
+        if (!node->left && !node->right)
             return nullptr;
-        int cmp_result = _compare(k, node->key_value->first) + _compare(node->key_value->first, k) * 2;
-        if (cmp_result == 1) {  //LEFT
-            if (!_isRedNode(node->left) && !_isRedNode(node->left->left))
-                node = _moveRedLeft(node);
-            _linkLeft(node, _eraseNode(node->left, k));
-        }
-        else {                  // RIGHT or EQUAL
-            if (_isRedNode(node->left)) {
-                node = _rotate_right_erase(node);
-                _linkRight(node, _eraseNode(node->right, k));
-                return _balance(node);
-            }
-            if (cmp_result != 2 && (node->right == _endNode || node->right == nullptr)) {
-                t_node *tmp = (!node->left && node->right == _endNode) ? node->right : node->left;
-                _deleteNode(node);
-                return tmp;
-            }
-            if (!_isRedNode(node->right) && node->right && !_isRedNode(node->right->left)) {
-                node = _moveRedRight(node);
-            }
-            if (!_compare(node->key_value->first, k)) {
-                t_node *min = _findMinNode(node->right);
-                if (node == _rootNode)
-                    _rootNode = min;
-                if (min->parent != node) {
-                    _linkLeft(min->parent, min->right);
-                    _linkRight(min, node->right);
-                }
-                if (node->left == _beginNode) {
-                    node->left->parent = min;
-                    min->left = node->left;
-                } else
-                    _linkLeft(min, node->left);
-                min->parent = nullptr;
-                if (node->parent) {
-                    if (node->parent->left == node)
-                        _linkLeft(node->parent, min);
-                    else
-                        _linkRight(node->parent, min);
-                }
-                _deleteNode(node);
-                node = min;
-            } else
-                _linkRight(node, _eraseNode(node->right, k));
-        }
-        return _balance(node);
+        if (node->left)
+            return node->left;
+        else
+            return node->right;
     }
+
+    void        _eraseAlgorithm(t_node *nodeToErase) {
+        t_node *nodeToReplace = _getNodeToReplace(nodeToErase);
+        bool isBothAreBlack = (!nodeToReplace || nodeToReplace->color == BLACK) && (nodeToErase->color == BLACK);
+        t_node *parent = nodeToErase->parent;
+
+        if (!nodeToReplace) {
+            if (nodeToErase == _rootNode)
+                _rootNode = nullptr;
+            else {
+                if (isBothAreBlack)
+                    _fixDoubleBlack(nodeToErase);
+                else {
+                    t_node *brother = _getBrother(nodeToErase);
+                    if (brother)
+                        brother->color = RED;
+                }
+                if (_isNodeLeftToParent(nodeToErase))
+                    parent->left = nullptr;
+                else
+                    parent->right = nullptr;
+            }
+            _deallocateNode(nodeToErase);
+            return;
+        }
+
+        if (!nodeToErase->left || !nodeToErase->right) {
+            if (nodeToErase == _rootNode) {
+                _alloc.destroy(nodeToErase->key_value);
+                _alloc.construct(nodeToErase->key_value, *(nodeToReplace->key_value));
+                nodeToErase->left = nullptr;
+                nodeToErase->right = nullptr;
+                _deallocateNode(nodeToReplace);
+            }
+            else {
+                if (_isNodeLeftToParent(nodeToErase))
+                    parent->left = nodeToReplace;
+                else
+                    parent->right = nodeToReplace;
+                _deallocateNode(nodeToErase);
+                nodeToReplace->parent = parent;
+                if (isBothAreBlack)
+                    _fixDoubleBlack(nodeToReplace);
+                else
+                    nodeToReplace->color = BLACK;
+            }
+            return;
+        }
+
+        nodeToReplace = _swapNodes(nodeToReplace, nodeToErase);
+        _eraseAlgorithm(nodeToReplace);
+    }
+
+    t_node      *_swapNodes(t_node *nodeToReplace, t_node *nodeToErase) {
+        bool isLeft;
+        t_node *repl_left = nodeToReplace->left;
+        t_node *repl_right = nodeToReplace->right;
+
+        if (nodeToReplace->parent != nodeToErase) {
+            t_node *repl_parent = nodeToReplace->parent;
+            isLeft = _isNodeLeftToParent(nodeToReplace);
+
+            _linkNodes(nodeToReplace, nodeToErase->right, 1);
+            _linkNodes(nodeToReplace, nodeToErase->left, 0);
+            if (nodeToErase != _rootNode && _isNodeLeftToParent(nodeToErase))
+                _linkNodes(nodeToErase->parent, nodeToReplace, 0);
+            else
+                _linkNodes(nodeToErase->parent, nodeToReplace, 1);
+
+            if (isLeft)
+                _linkNodes(repl_parent, nodeToErase, 0);
+            else
+                _linkNodes(repl_parent, nodeToErase, 1);
+            _linkNodes(nodeToErase, repl_left, 0);
+            _linkNodes(nodeToErase, repl_right, 1);
+        }
+        else {
+            isLeft = _isNodeLeftToParent(nodeToReplace);
+            if (!isLeft)
+                _linkNodes(nodeToReplace, nodeToErase->left, 0);
+            else
+                _linkNodes(nodeToReplace, nodeToErase->right,1);
+
+            if (nodeToErase->parent) {
+                if (_isNodeLeftToParent(nodeToErase))
+                    _linkNodes(nodeToErase->parent, nodeToReplace, 0);
+                else
+                    _linkNodes(nodeToErase->parent, nodeToReplace, 1);
+            }
+            else
+                nodeToReplace->parent = nullptr;
+            if (!isLeft)
+                _linkNodes(nodeToReplace, nodeToErase, 1);
+            else
+                _linkNodes(nodeToReplace, nodeToErase, 0);
+            _linkNodes(nodeToErase, repl_right, 1);
+            _linkNodes(nodeToErase, repl_left, 0);
+        }
+        if (nodeToErase == _rootNode)
+            _rootNode = nodeToReplace;
+        return nodeToErase;
+    }
+
+    void        _fixDoubleBlack(t_node *node) {
+        if (node == _rootNode)
+            return;
+        t_node *brother = _getBrother(node);
+        t_node *parent = node->parent;
+        if (!brother)
+            _fixDoubleBlack(parent);
+        else {
+            if (brother->color == RED) {
+                parent->color = RED;
+                brother->color = RED;
+                if (_isNodeLeftToParent(brother))
+                    _rotate_right(parent);
+                else
+                    _rotate_left(parent);
+                _fixDoubleBlack(node);
+            }
+            else {
+                if ((brother->left != NULL && brother->left->color == RED) || (brother->right != NULL && brother->right->color == RED)) {
+                    if (brother->left && brother->left->color == RED) {
+                        if (_isNodeLeftToParent(brother)) {
+                            brother->left->color = brother->color;
+                            brother->color = parent->color;
+                            _rotate_right(parent);
+                        }
+                        else {
+                            brother->left->color = parent->color;
+                            _rotate_right(brother);
+                            _rotate_left(parent);
+                        }
+                    }
+                    else {
+                        if (_isNodeLeftToParent(brother)) {
+                            brother->right->color = parent->color;
+                            _rotate_left(brother);
+                            _rotate_right(parent);
+                        }
+                        else {
+                            brother->right->color = brother->color;
+                            brother->color = parent->color;
+                            _rotate_left(parent);
+                        }
+                    }
+                    parent->color = BLACK;
+                }
+                else {
+                    brother->color = RED;
+                    if (parent->color == BLACK)
+                        _fixDoubleBlack(parent);
+                    else
+                        parent->color = BLACK;
+                }
+            }
+        }
+    }
+
+    ////////////////
 
     bool        _find_key(const key_type& k, t_node **node) const {
         bool        rightOrEqual;
@@ -1059,13 +1062,6 @@ private:
         *node = temp_parent;
         return rightOrEqual;
     }
-
-//    t_node      *_find_max(t_node *node) {
-//        t_node* temp = node;
-//        while (temp&& temp->right)
-//            temp = temp->right;
-//        return temp;
-//    }
 };
 
 }
