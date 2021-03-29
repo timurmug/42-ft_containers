@@ -6,29 +6,6 @@
 #include "gtest/gtest.h"
 #include <map>
 
-//static const char alphabet[] =
-//        "0123456789"
-//        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-//        "abcdefghijklmnopqrstuvwxyz";
-//
-//std::string getRandomStr() {
-//    const int len = rand() % 10;
-//    std::string randomStr;
-//    randomStr.reserve(len);
-//    for (int i = 0; i < len; ++i)
-//        randomStr += alphabet[rand() % (sizeof(alphabet) - 1)];
-//    return randomStr;
-//}
-//int         getRandomInt() {
-//    int randomInt = randomInt = rand();
-//    if (rand() % 2 == 1)
-//        randomInt *= -1;
-//    return randomInt;
-//}
-//char        getRandomChar() {
-//    return alphabet[rand() % (sizeof(alphabet) - 1)];
-//}
-
 template <typename T, typename S>
 void checkTwoMaps(T & std_map, S & ft_map) {
     typename T::iterator std_it = std_map.begin();
@@ -851,6 +828,7 @@ TEST(Map_Modifiers, clear) {
     ft_map.clear();
     checkTwoMaps(std_map, ft_map);
 }
+
 
 /* Observers */
 TEST(Map_Observers, key_comp) {

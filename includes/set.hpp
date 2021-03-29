@@ -1,5 +1,5 @@
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef SET_HPP
+#define SET_HPP
 
 #include <memory>
 #include "stack.hpp"
@@ -11,32 +11,17 @@ struct enable_if<true, T> { typedef T type; };
 
 namespace ft {
 
-template < class Key,                                               // mapR:key_type
-        class T,                                                    // map::mapped_type
-        class Compare = std::less<Key>,                             // map::key_compare
-        class Alloc = std::allocator<std::pair<const Key,T> > >     // map::allocator_type
-class map {
+template < class T,                           // set::key_type/value_type
+        class Compare = std::less <T>,           // set::key_compare/value_compare
+        class Alloc = std::allocator <T> >       // set::allocator_type
+class set {
 
 public:
-/* Member types */
-    typedef Key                                         key_type;
-    typedef T                                           mapped_type;
-    typedef std::pair<const key_type, mapped_type>      value_type;
+    /* Member types */
+    typedef T                                           key_type;
+    typedef T                                           value_type;
     typedef Compare                                     key_compare;
-    class   value_compare : public std::binary_function<value_type, value_type, bool>
-    {
-    public:
-        Compare comp;
-        value_compare (Compare c) : comp(c) {}  // constructed with map's comparison object
-    public:
-        typedef bool result_type;
-        typedef value_type first_argument_type;
-        typedef value_type second_argument_type;
-        bool operator() (const value_type& x, const value_type& y) const
-        {
-            return comp(x.first, y.first);
-        }
-    };
+    typedef Compare                                     value_compare;
     typedef Alloc                                       allocator_type;
     typedef typename allocator_type::reference          reference;
     typedef typename allocator_type::const_reference    const_reference;
@@ -51,14 +36,14 @@ public:
 
 private:
     typedef struct			s_node {
-        pointer             key_value;
+        pointer             key;
         s_node				*parent;
         s_node				*right;
         s_node				*left;
         bool                color;
     }						t_node;
 
-/* Local variables */
+    /* Local variables */
     #define RED     1
     #define BLACK   0
 
@@ -76,23 +61,23 @@ private:
 public:
 /* Constructors */
 //    empty (1)
-    explicit map (const key_compare& comp = key_compare(),
+    explicit set (const key_compare& comp = key_compare(),
                   const allocator_type& alloc = allocator_type()) :  _alloc(alloc), _size(0), _compare(comp) { }
 //    range (2)
     template <class InputIterator>
-    map (InputIterator first, InputIterator last,
+    set (InputIterator first, InputIterator last,
          const key_compare& comp = key_compare(),
          const allocator_type& alloc = allocator_type(),
          typename ft::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) : _alloc(alloc), _size(0), _compare(comp) {
         insert(first, last);
     }
 //    copy (3)
-    map (const map& x)  : _size(0) {
+    set (const set& x) : _size(0) {
         *this = x;
     }
 
-/* Assignation operator */
-    map& operator=(const map& x) {
+    /* Assignation operator */
+    set& operator= (const set& x) {
         if (this != &x) {
             clear();
             _alloc_rebind = x._alloc_rebind;
@@ -109,14 +94,14 @@ public:
         return *this;
     }
 
-/* Destructor */
-    ~map() {
+    /* Destructor */
+    ~set() {
         clear();
         _alloc_rebind.deallocate(_endNode, 1);
         _alloc_rebind.deallocate(_beginNode, 1);
     }
 
-/* Iterators classes */
+    /* Iterators classes */
     class iterator : public std::iterator<std::input_iterator_tag, value_type> {
     private:
         t_node  *_node_ptr;
@@ -169,8 +154,8 @@ public:
         bool        operator==(const iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
         bool        operator!=(const iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
 
-        value_type& operator*()                         const   { return *this->_node_ptr->key_value; }
-        value_type* operator->()                        const   { return this->_node_ptr->key_value; }
+        value_type& operator*()                         const   { return *this->_node_ptr->key; }
+        value_type* operator->()                        const   { return this->_node_ptr->key; }
 
         iterator&   operator++()                                { _findNextNode(); return *this; }
         iterator    operator++(int)                             { iterator tmp = *this; operator++(); return tmp; }
@@ -237,8 +222,8 @@ public:
         bool        operator==(const const_iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
         bool        operator!=(const const_iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
 
-        value_type& operator*()                               const   { return *this->_node_ptr->key_value; }
-        value_type* operator->()                              const   { return this->_node_ptr->key_value; }
+        value_type& operator*()                               const   { return *this->_node_ptr->key; }
+        value_type* operator->()                              const   { return this->_node_ptr->key; }
 
         const_iterator&   operator++()                                { _findNextNode(); return *this; }
         const_iterator    operator++(int)                             { const_iterator tmp = *this; operator++(); return tmp; }
@@ -300,8 +285,8 @@ public:
         bool                operator==(const reverse_iterator& rhs)     const   { return this->_node_ptr == rhs._node_ptr; }
         bool                operator!=(const reverse_iterator& rhs)     const   { return this->_node_ptr != rhs._node_ptr; }
 
-        value_type&         operator*()                                 const   { return *this->_node_ptr->key_value; }
-        value_type*         operator->()                                const   { return this->_node_ptr->key_value; }
+        value_type&         operator*()                                 const   { return *this->_node_ptr->key; }
+        value_type*         operator->()                                const   { return this->_node_ptr->key; }
 
         reverse_iterator&   operator++()                                        { _findPrevNode(); return *this; }
         reverse_iterator    operator++(int)                                     { reverse_iterator tmp = *this; operator++(); return tmp; }
@@ -368,8 +353,8 @@ public:
         bool                        operator==(const const_reverse_iterator& rhs)   const   { return this->_node_ptr == rhs._node_ptr; }
         bool                        operator!=(const const_reverse_iterator& rhs)   const   { return this->_node_ptr != rhs._node_ptr; }
 
-        value_type&                 operator*()                                     const   { return *this->_node_ptr->key_value; }
-        value_type*                 operator->()                                    const   { return this->_node_ptr->key_value; }
+        value_type&                 operator*()                                     const   { return *this->_node_ptr->key; }
+        value_type*                 operator->()                                    const   { return this->_node_ptr->key; }
 
         const_reverse_iterator&     operator++()                                            { _findPrevNode(); return *this; }
         const_reverse_iterator      operator++(int)                                         { const_reverse_iterator tmp = *this; operator++(); return tmp; }
@@ -379,7 +364,7 @@ public:
         t_node                      *getNodePtr()                                   const   { return _node_ptr; }
     };
 
-/* Iterators */
+    /* Iterators */
     iterator 				begin()             { return (_size) ? iterator(_beginNode->parent) : iterator(_endNode); }
     const_iterator 		    begin()     const   { return (_size) ? const_iterator(_beginNode->parent) : const_iterator(_endNode); }
     iterator				end()               { return iterator(_endNode); }
@@ -390,15 +375,12 @@ public:
     reverse_iterator		rend()              { return reverse_iterator(_beginNode); }
     const_reverse_iterator	rend()      const   { return const_reverse_iterator(_beginNode); }
 
-
-/* Capacity */
+    /* Capacity */
     bool                    empty()     const   { return (!_size); }
     size_type               size()      const   { return _size; }
-    size_type               max_size()  const   { return std::numeric_limits<size_type>::max() / sizeof(map<Key, T, Compare, Alloc>); }
-/* Element access */
-    mapped_type& operator[] (const key_type& k) { return (*((this->insert(std::make_pair(k,mapped_type()))).first)).second; }
+    size_type               max_size()  const   { return std::numeric_limits<size_type>::max() / sizeof(set<T, Compare, Alloc>); }
 
-/* Modifiers */
+    /* Modifiers */
 //    single element (1)
     std::pair<iterator, bool> insert (const value_type& val) {
         t_node *newNode = nullptr;
@@ -410,7 +392,7 @@ public:
 
         t_node *parent;
         bool rightOrEqual = _searchWhereToInsert(val, &parent);
-        if (rightOrEqual && parent->key_value->first == val.first)               // элемент уже есть
+        if (rightOrEqual && *parent->key == val)               // элемент уже есть
             return std::pair<iterator, bool>(iterator(parent), false);
 
         newNode = _insertAfterNode(parent, rightOrEqual, val);
@@ -433,17 +415,18 @@ public:
             insert(*first);
     }
 
+
 //    (1)
     void erase (iterator position) {
-        erase(position->first);
+        erase(*position);
     }
 //    (2)
-    size_type erase (const key_type& k) {
+    size_type erase (const value_type& val) {
         t_node *nodeToErase;
         if (!_size || !_rootNode)
             return 0;
-        bool isFind = _find_key(k, &nodeToErase);
-        if (!isFind || nodeToErase->key_value->first != k)
+        bool isFind = _searchWhereToInsert(val, &nodeToErase);
+        if (!isFind || *nodeToErase->key != val)
             return 0;
 
         if (_beginNode->parent)
@@ -467,7 +450,7 @@ public:
         }
     }
 
-    void swap (map& x) {
+    void swap (set& x) {
         allocator_rebind_type 	alloc_rebindTemp = _alloc_rebind;
         _alloc_rebind = x._alloc_rebind;
         x._alloc_rebind = alloc_rebindTemp;
@@ -502,76 +485,47 @@ public:
             erase(begin());
     }
 
-/* Observers */
+    /* Observers */
     key_compare     key_comp()      const   { return _compare; }
     value_compare   value_comp()    const   { return value_compare(_compare); };
 
-
-/* Operations */
-    iterator        find (const key_type& k) {
+    /* Operations */
+    iterator                        find (const value_type & val) {
         t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
+        bool rightOrEqual = _searchWhereToInsert(val, &node);
+        if (rightOrEqual && *node->key == val)
             return iterator(node);
-        return map::end();
-    }
-    const_iterator  find (const key_type& k) const {
-        t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
-            return const_iterator(node);
-        return end();
+        return set::end();
     }
 
-    size_type       count (const key_type& k) const {
+    size_type                       count (const value_type& val) const {
         t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
+        bool rightOrEqual = _searchWhereToInsert(val, &node);
+        if (rightOrEqual && *(node->key) == val)
             return 1;
         return 0;
     }
 
-    iterator lower_bound(const key_type& k) {
+    iterator                        lower_bound(const value_type& val) {
         t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
+        bool rightOrEqual = _searchWhereToInsert(val, &node);
+        if (rightOrEqual && *node->key == val)
             return iterator(node);
         return iterator(end());
     }
-    const_iterator lower_bound (const key_type& k) const {
-        t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
-            return const_iterator(node);
-        return const_iterator(end());
-    }
 
-    iterator upper_bound (const key_type& k) {
+    iterator                        upper_bound (const value_type& val) {
         t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
+        bool rightOrEqual = _searchWhereToInsert(val, &node);
+        if (rightOrEqual && *node->key == val)
             return ++iterator(node);
         return iterator(end());
     }
-    const_iterator upper_bound (const key_type& k) const {
-        t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
-            return ++const_iterator(node);
-        return const_iterator(end());
-    }
 
-    std::pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
+    std::pair<iterator,iterator>    equal_range (const value_type& val) {
         t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
-            return std::pair<const_iterator,const_iterator>(const_iterator(node), ++const_iterator(node));
-        return std::pair<const_iterator,const_iterator>(end(), end());
-    }
-    std::pair<iterator,iterator>             equal_range (const key_type& k) {
-        t_node *node;
-        bool rightOrEqual = _find_key(k, &node);
-        if (rightOrEqual && node->key_value->first == k)
+        bool rightOrEqual = _searchWhereToInsert(val, &node);
+        if (rightOrEqual && *node->key == val)
             return std::pair<iterator,iterator>(iterator(node), ++iterator(node));
         return std::pair<iterator,iterator>(end(), end());
     }
@@ -623,7 +577,7 @@ private:
             _rotate_left(node->parent);
             node = node->left;
         }
-        // если нода слева от родителя и родитель справа от дедушки
+            // если нода слева от родителя и родитель справа от дедушки
         else if ((node == node->parent->left) && (node->parent == grandparent->right)) {
             _rotate_right(node->parent);
             node = node->right;
@@ -648,19 +602,19 @@ private:
             _rotate_left(grandparent);
     }
 
-    bool        _searchWhereToInsert(const value_type& val, t_node **node) {
+    bool        _searchWhereToInsert(const value_type& val, t_node **node) const {
         bool        rightOrEqual;
         t_node      *temp_root = _rootNode;
         t_node      *temp_parent;
-        value_type  *temp_key_value;
+        key_type    *temp_key;
 
-        while (temp_root && temp_root->key_value) {
-            temp_key_value = temp_root->key_value;
-            if (!_compare(val.first, temp_key_value->first) && !_compare(temp_key_value->first, val.first)) {
+        while (temp_root && temp_root->key) {
+            temp_key = temp_root->key;
+            if (!_compare(val, *temp_key) && !_compare(*temp_key, val)) {
                 *node = temp_root;
                 return true;
             }
-            else if (_compare(val.first, temp_key_value->first)) {
+            else if (_compare(val, *temp_key)) {
                 temp_parent = temp_root;
                 rightOrEqual = false;
                 temp_root = temp_root->left;
@@ -785,17 +739,17 @@ private:
 
     void        _initRoot(const value_type& val) {
         /* init root */
-         _rootNode = _initNewNode(val, nullptr, nullptr, nullptr);
-         _rootNode->color = BLACK;
+        _rootNode = _initNewNode(val, nullptr, nullptr, nullptr);
+        _rootNode->color = BLACK;
 
         /* init _endNode */
-         _endNode = _alloc_rebind.allocate(1);
+        _endNode = _alloc_rebind.allocate(1);
         _endNode->parent = _rootNode;
         _endNode->left = nullptr;
-         _endNode->right = nullptr;
+        _endNode->right = nullptr;
 
-         _endNode->key_value = nullptr;
-         _endNode->color = BLACK;
+        _endNode->key = nullptr;
+        _endNode->color = BLACK;
         _rootNode->right = _endNode;
 
         /* init _beginNode */
@@ -804,7 +758,7 @@ private:
         _beginNode->left = nullptr;
         _beginNode->right = nullptr;
 
-        _beginNode->key_value = nullptr;
+        _beginNode->key = nullptr;
         _beginNode->color = BLACK;
         _rootNode->left = _beginNode;
     }
@@ -815,8 +769,8 @@ private:
         newNode->left = leftNode;
         newNode->right = rightNode;
 
-        newNode->key_value = _alloc.allocate(1);
-        _alloc.construct(newNode->key_value, val);
+        newNode->key = _alloc.allocate(1);
+        _alloc.construct(newNode->key, val);
 
         newNode->color = RED;
 
@@ -830,8 +784,8 @@ private:
     }
 
     void 		_deallocateNode(t_node *node) {
-        _alloc.destroy(node->key_value);
-        _alloc.deallocate(node->key_value, 1);
+        _alloc.destroy(node->key);
+        _alloc.deallocate(node->key, 1);
         _alloc_rebind.deallocate(node, 1);
         _size--;
     }
@@ -898,8 +852,8 @@ private:
 
         if (!nodeToErase->left || !nodeToErase->right) {
             if (nodeToErase == _rootNode) {
-                _alloc.destroy(nodeToErase->key_value);
-                _alloc.construct(nodeToErase->key_value, *(nodeToReplace->key_value));
+                _alloc.destroy(nodeToErase->key);
+                _alloc.construct(nodeToErase->key, *(nodeToReplace->key));
                 nodeToErase->left = nullptr;
                 nodeToErase->right = nullptr;
                 _deallocateNode(nodeToReplace);
@@ -1028,37 +982,7 @@ private:
             }
         }
     }
-
-    ////////////////
-
-    bool        _find_key(const key_type& k, t_node **node) const {
-        bool        rightOrEqual;
-        t_node      *temp_root = _rootNode;
-        t_node      *temp_parent;
-        value_type  *temp_key_value;
-
-        while (temp_root && temp_root->key_value) {
-            temp_key_value = temp_root->key_value;
-            if (!_compare(k, temp_key_value->first) && !_compare(temp_key_value->first, k)) {
-                *node = temp_root;
-                return true;
-            }
-            else if (_compare(k, temp_key_value->first)) {
-                temp_parent = temp_root;
-                rightOrEqual = false;
-                temp_root = temp_root->left;
-            }
-            else {
-                temp_parent = temp_root;
-                rightOrEqual = true;
-                temp_root = temp_root->right;
-            }
-        }
-
-        *node = temp_parent;
-        return rightOrEqual;
-    }
-};
+    };
 
 }
 
