@@ -1122,7 +1122,3 @@ TEST(Map_Operations, equal_range) {
     EXPECT_EQ(std_ret2.second->first, ft_ret2.second->first);
     EXPECT_EQ(std_ret2.second->second, ft_ret2.second->second);
 }
-
-//TEST(sdf, ssdfsf) {
-//    while (1);
-//}
